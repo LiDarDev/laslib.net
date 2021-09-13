@@ -37,21 +37,23 @@
             this.tslMain = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel3 = new System.Windows.Forms.ToolStripStatusLabel();
             this.tslFile = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripProgressBar1 = new System.Windows.Forms.ToolStripProgressBar();
+            this.tsProgressbar = new System.Windows.Forms.ToolStripProgressBar();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.dgvInfo = new System.Windows.Forms.DataGridView();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.dgvData = new System.Windows.Forms.DataGridView();
-            this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
-            this.colB = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colG = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colR = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colI = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colZ = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colY = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colX = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colId = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colX = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colY = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colZ = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colI = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colR = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colG = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colB = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
+            this.colKey = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colVal = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.toolStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -109,7 +111,7 @@
             this.tslMain,
             this.toolStripStatusLabel3,
             this.tslFile,
-            this.toolStripProgressBar1});
+            this.tsProgressbar});
             this.statusStrip1.Location = new System.Drawing.Point(0, 787);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(1135, 22);
@@ -149,11 +151,11 @@
             this.tslFile.Size = new System.Drawing.Size(290, 17);
             this.tslFile.Text = "No file opened.";
             // 
-            // toolStripProgressBar1
+            // tsProgressbar
             // 
-            this.toolStripProgressBar1.AutoSize = false;
-            this.toolStripProgressBar1.Name = "toolStripProgressBar1";
-            this.toolStripProgressBar1.Size = new System.Drawing.Size(180, 16);
+            this.tsProgressbar.AutoSize = false;
+            this.tsProgressbar.Name = "tsProgressbar";
+            this.tsProgressbar.Size = new System.Drawing.Size(180, 16);
             // 
             // splitContainer1
             // 
@@ -188,6 +190,9 @@
             this.dgvInfo.AllowUserToAddRows = false;
             this.dgvInfo.AllowUserToDeleteRows = false;
             this.dgvInfo.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvInfo.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
+            this.colKey,
+            this.colVal});
             this.dgvInfo.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvInfo.Location = new System.Drawing.Point(3, 17);
             this.dgvInfo.Name = "dgvInfo";
@@ -209,6 +214,8 @@
             // 
             // dgvData
             // 
+            this.dgvData.AllowUserToAddRows = false;
+            this.dgvData.AllowUserToDeleteRows = false;
             this.dgvData.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvData.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.colId,
@@ -222,9 +229,62 @@
             this.dgvData.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvData.Location = new System.Drawing.Point(3, 17);
             this.dgvData.Name = "dgvData";
+            this.dgvData.ReadOnly = true;
             this.dgvData.RowTemplate.Height = 23;
             this.dgvData.Size = new System.Drawing.Size(776, 742);
             this.dgvData.TabIndex = 0;
+            // 
+            // colId
+            // 
+            this.colId.HeaderText = "id";
+            this.colId.Name = "colId";
+            this.colId.ReadOnly = true;
+            this.colId.Width = 60;
+            // 
+            // colX
+            // 
+            this.colX.HeaderText = "X";
+            this.colX.Name = "colX";
+            this.colX.ReadOnly = true;
+            // 
+            // colY
+            // 
+            this.colY.HeaderText = "Y";
+            this.colY.Name = "colY";
+            this.colY.ReadOnly = true;
+            // 
+            // colZ
+            // 
+            this.colZ.HeaderText = "Z";
+            this.colZ.Name = "colZ";
+            this.colZ.ReadOnly = true;
+            // 
+            // colI
+            // 
+            this.colI.HeaderText = "Intensity";
+            this.colI.Name = "colI";
+            this.colI.ReadOnly = true;
+            // 
+            // colR
+            // 
+            this.colR.HeaderText = "R";
+            this.colR.Name = "colR";
+            this.colR.ReadOnly = true;
+            this.colR.Width = 80;
+            // 
+            // colG
+            // 
+            this.colG.HeaderText = "G";
+            this.colG.Name = "colG";
+            this.colG.ReadOnly = true;
+            this.colG.Width = 80;
+            // 
+            // colB
+            // 
+            this.colB.HeaderText = "B";
+            this.colB.Name = "colB";
+            this.colB.ReadOnly = true;
+            this.colB.Width = 80;
             // 
             // openFileDialog
             // 
@@ -232,49 +292,17 @@
             this.openFileDialog.FileName = "Select a Las File";
             this.openFileDialog.Filter = "Las file|*.las|All Files|*.*";
             // 
-            // colB
+            // colKey
             // 
-            this.colB.HeaderText = "B";
-            this.colB.Name = "colB";
-            this.colB.Width = 80;
+            this.colKey.HeaderText = "Key";
+            this.colKey.Name = "colKey";
+            this.colKey.ReadOnly = true;
             // 
-            // colG
+            // colVal
             // 
-            this.colG.HeaderText = "G";
-            this.colG.Name = "colG";
-            this.colG.Width = 80;
-            // 
-            // colR
-            // 
-            this.colR.HeaderText = "R";
-            this.colR.Name = "colR";
-            this.colR.Width = 80;
-            // 
-            // colI
-            // 
-            this.colI.HeaderText = "Intensity";
-            this.colI.Name = "colI";
-            // 
-            // colZ
-            // 
-            this.colZ.HeaderText = "Z";
-            this.colZ.Name = "colZ";
-            // 
-            // colY
-            // 
-            this.colY.HeaderText = "Y";
-            this.colY.Name = "colY";
-            // 
-            // colX
-            // 
-            this.colX.HeaderText = "X";
-            this.colX.Name = "colX";
-            // 
-            // colId
-            // 
-            this.colId.HeaderText = "id";
-            this.colId.Name = "colId";
-            this.colId.Width = 60;
+            this.colVal.HeaderText = "Value";
+            this.colVal.Name = "colVal";
+            this.colVal.ReadOnly = true;
             // 
             // FormMain
             // 
@@ -315,7 +343,7 @@
         private System.Windows.Forms.GroupBox groupBox1;
         private System.Windows.Forms.ToolStripStatusLabel tslMain;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel3;
-        private System.Windows.Forms.ToolStripProgressBar toolStripProgressBar1;
+        private System.Windows.Forms.ToolStripProgressBar tsProgressbar;
         private System.Windows.Forms.DataGridView dgvData;
         private System.Windows.Forms.DataGridView dgvInfo;
         private System.Windows.Forms.ToolStripButton toolStripButton1;
@@ -330,6 +358,8 @@
         private System.Windows.Forms.DataGridViewTextBoxColumn colR;
         private System.Windows.Forms.DataGridViewTextBoxColumn colG;
         private System.Windows.Forms.DataGridViewTextBoxColumn colB;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colKey;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colVal;
     }
 }
 
