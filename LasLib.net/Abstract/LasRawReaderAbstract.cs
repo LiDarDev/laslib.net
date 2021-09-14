@@ -8,7 +8,7 @@
 using LasLibNet.Abstract;
 using System.IO;
 
-namespace LasLibNet
+namespace LasLibNet.Abstract
 {
 	abstract class LasRawItemReader : LasItemReader
 	{

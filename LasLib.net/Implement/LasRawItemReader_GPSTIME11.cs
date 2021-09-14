@@ -6,19 +6,23 @@
 ///////////////////////////////////////////////////////////////////////
 
 using LasLibNet;
+using LasLibNet.Abstract;
+using System;
 using System.IO;
 
-namespace LasLibNet
+namespace LasLibNet.Implement
 {
-	class LasRawItemReader_BYTE : LasRawItemReader
+	class LasRawItemReader_GPSTIME11 : LasRawItemReader
 	{
-		public LasRawItemReader_BYTE(uint number) { this.number=number; }
+		public LasRawItemReader_GPSTIME11() { }
 
 		public override void Read(LasPoint item)
 		{
-			if(instream.Read(item.extra_bytes, 0, (int)number)!=(int)number) throw new EndOfStreamException();
+			if(instream.Read(buffer, 0, 8)!=8) throw new EndOfStreamException();
+
+			item.gps_time=BitConverter.ToDouble(buffer, 0);
 		}
 
-		uint number=0;
+		byte[] buffer=new byte[8];
 	}
 }

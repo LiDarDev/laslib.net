@@ -5,6 +5,7 @@
 /// Date    : 2021/9/13/
 ///////////////////////////////////////////////////////////////////////
 
+using LasLibNet.Abstract;
 using System.IO;
 using System.Runtime.InteropServices;
 

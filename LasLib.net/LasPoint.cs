@@ -7,6 +7,7 @@
 ///////////////////////////////////////////////////////////////////////
 
 
+using LasLibNet.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,18 +21,80 @@ namespace LasLibNet
     /// </summary>
     public class LasPoint
     {
-        public int X;
-        public int Y;
-        public int Z;
+        /// <summary>
+        /// The coordinate of las file.
+        /// </summary>
+        public int X,Y,Z;
         public ushort intensity;
+                
+        /// <summary>
+        /// The X of geographic coordinate.
+        /// </summary>
+        public double GeoX {
+            get { 
+                return LasHeader.Instance.x_scale_factor * this.X + LasHeader.Instance.x_offset;                
+            }
+            set {                
+                this.X = MyDefs.I32_QUANTIZE((value - LasHeader.Instance.x_offset) / LasHeader.Instance.x_scale_factor);
+            }
+        }
+
+        /// <summary>
+        /// The Y of geographic coordinate.
+        /// </summary>
+        public double GeoY
+        {
+            get
+            {
+                return LasHeader.Instance.y_scale_factor * this.Y + LasHeader.Instance.y_offset;                
+            }
+            set
+            {                
+                this.Y = MyDefs.I32_QUANTIZE((value - LasHeader.Instance.y_offset) / LasHeader.Instance.y_scale_factor);
+            }
+        }
+
+
+        /// <summary>
+        /// The Y of geographic coordinate.
+        /// </summary>
+        public double GeoZ
+        {
+            get
+            {
+              return LasHeader.Instance.z_scale_factor * this.Z + LasHeader.Instance.z_offset;
+            }
+            set
+            {
+                this.Z = MyDefs.I32_QUANTIZE((value - LasHeader.Instance.z_offset) / LasHeader.Instance.z_scale_factor);
+            }
+        }
+
+
         //public byte return_number : 3;
-        public byte return_number { get { return (byte)(flags & 7); } set { flags = (byte)((flags & 0xF8) | (value & 7)); } }
+        public byte return_number
+        {
+            get { return (byte)(flags & 7); }
+            set { flags = (byte)((flags & 0xF8) | (value & 7)); }
+        }
         //public byte number_of_returns_of_given_pulse : 3;
-        public byte number_of_returns_of_given_pulse { get { return (byte)((flags >> 3) & 7); } set { flags = (byte)((flags & 0xC7) | ((value & 7) << 3)); } }
+        public byte number_of_returns_of_given_pulse
+        {
+            get { return (byte)((flags >> 3) & 7); }
+            set { flags = (byte)((flags & 0xC7) | ((value & 7) << 3)); }
+        }
         //public byte scan_direction_flag : 1;
-        public byte scan_direction_flag { get { return (byte)((flags >> 6) & 1); } set { flags = (byte)((flags & 0xBF) | ((value & 1) << 6)); } }
+        public byte scan_direction_flag
+        {
+            get { return (byte)((flags >> 6) & 1); }
+            set { flags = (byte)((flags & 0xBF) | ((value & 1) << 6)); }
+        }
         //public byte edge_of_flight_line : 1;
-        public byte edge_of_flight_line { get { return (byte)((flags >> 7) & 1); } set { flags = (byte)((flags & 0x7F) | ((value & 1) << 7)); } }
+        public byte edge_of_flight_line
+        {
+            get { return (byte)((flags >> 7) & 1); }
+            set { flags = (byte)((flags & 0x7F) | ((value & 1) << 7)); }
+        }
         public byte flags;
         public byte classification;
         public sbyte scan_angle_rank;
@@ -44,17 +107,39 @@ namespace LasLibNet
 
         // LAS 1.4 only
         //public byte extended_point_type : 2;
-        public byte extended_point_type { get { return (byte)(extended_flags & 3); } set { extended_flags = (byte)((extended_flags & 0xFC) | (value & 3)); } }
+        public byte extended_point_type
+        {
+            get { return (byte)(extended_flags & 3); }
+            set { extended_flags = (byte)((extended_flags & 0xFC) | (value & 3)); }
+        }
         //public byte extended_scanner_channel : 2;
-        public byte extended_scanner_channel { get { return (byte)((extended_flags >> 2) & 3); } set { extended_flags = (byte)((extended_flags & 0xF3) | ((value & 3) << 2)); } }
+        public byte extended_scanner_channel
+        {
+            get { return (byte)((extended_flags >> 2) & 3); }
+            set { extended_flags = (byte)((extended_flags & 0xF3) | ((value & 3) << 2)); }
+        }
         //public byte extended_classification_flags : 4;
-        public byte extended_classification_flags { get { return (byte)((extended_flags >> 4) & 0xF); } set { extended_flags = (byte)((extended_flags & 0xF) | ((value & 0xF) << 4)); } }
+        public byte extended_classification_flags
+        {
+            get { return (byte)((extended_flags >> 4) & 0xF); }
+            set { extended_flags = (byte)((extended_flags & 0xF) | ((value & 0xF) << 4)); }
+        }
+
         public byte extended_flags;
         public byte extended_classification;
         //public byte extended_return_number : 4;
-        public byte extended_return_number { get { return (byte)(extended_returns & 0xF); } set { extended_returns = (byte)((extended_returns & 0xF0) | (value & 0xF)); } }
+        public byte extended_return_number
+        {
+            get { return (byte)(extended_returns & 0xF); }
+            set { extended_returns = (byte)((extended_returns & 0xF0) | (value & 0xF)); }
+        }
         //public byte extended_number_of_returns_of_given_pulse : 4;
-        public byte extended_number_of_returns_of_given_pulse { get { return (byte)((extended_returns >> 4) & 0xF); } set { extended_returns = (byte)((extended_returns & 0xF) | ((value & 0xF) << 4)); } }
+        public byte extended_number_of_returns_of_given_pulse
+        {
+            get { return (byte)((extended_returns >> 4) & 0xF); }
+            set { extended_returns = (byte)((extended_returns & 0xF) | ((value & 0xF) << 4)); }
+        }
+
         public byte extended_returns;
         public short extended_scan_angle;
 

@@ -12,7 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using LASitem = LasLibNet.LasItem;
-using LASzip = LasLibNet.LasFile;
+using LasFile = LasLibNet.LasFile;
 
 namespace LasLibNet
 {
@@ -48,7 +48,7 @@ namespace LasLibNet
 		}
 
 		// should only be called *once*
-		public bool setup(uint num_items, LASitem[] items, LASzip laszip = null)
+		public bool setup(uint num_items, LASitem[] items, LasFile laszip = null)
 		{
 			// is laszip exists then we must use its items
 			if (laszip != null)
@@ -63,7 +63,7 @@ namespace LasLibNet
 			{
 				switch (laszip.coder)
 				{
-					case LASzip.CODER_ARITHMETIC: dec = new ArithmeticDecoder(); break;
+					case LasFile.CODER_ARITHMETIC: dec = new ArithmeticDecoder(); break;
 					default: return false; // entropy decoder not supported
 				}
 			}
@@ -132,7 +132,7 @@ namespace LasLibNet
 					}
 				}
 
-				if (laszip.compressor == LASzip.COMPRESSOR_POINTWISE_CHUNKED)
+				if (laszip.compressor == LasFile.COMPRESSOR_POINTWISE_CHUNKED)
 				{
 					if (laszip.chunk_size != 0) chunk_size = laszip.chunk_size;
 					number_chunks = uint.MaxValue;

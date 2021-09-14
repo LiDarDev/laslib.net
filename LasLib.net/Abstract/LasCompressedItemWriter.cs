@@ -1,10 +1,10 @@
 ﻿//===============================================================================
 //
-//  FILE:  laszip_geokey.cs
+//  FILE:  laswriteitemcompressed.cs
 //
 //  CONTENTS:
 //
-//    C# port of a simple DLL interface to LasFile.
+//    Common interface for all classes that write the items that compose a point.
 //
 //  PROGRAMMERS:
 //
@@ -26,17 +26,10 @@
 //
 //===============================================================================
 
-
-using System.Runtime.InteropServices;
-
-namespace LasLibNet.Model
+namespace LasLibNet.Abstract
 {
-	[StructLayout(LayoutKind.Sequential, Pack=1)]
-	public struct LasGeokey
+	abstract class LasCompressedItemWriter : LasItemWriter
 	{
-		public ushort key_id;
-		public ushort tiff_tag_location;
-		public ushort count;
-		public ushort value_offset;
+		public abstract bool init(LasPoint item);
 	}
 }

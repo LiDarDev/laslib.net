@@ -44,7 +44,7 @@ namespace LasLibNet
 		public bool check_compressor(ushort compressor)
 		{
 			if (compressor < COMPRESSOR_TOTAL_NUMBER_OF) return true;
-			return return_error(string.Format("compressor {0} not supported", compressor));
+			return return_error(string.Format("Compressor {0} not supported", compressor));
 		}
 		public bool check_coder(ushort coder)
 		{
@@ -85,14 +85,14 @@ namespace LasLibNet
 					break;
 				default:
 					if (true)
-						return return_error(string.Format("item unknown ({0},{1},{2})", item.type, item.size, item.version));
+						return return_error(string.Format("Item unknown ({0},{1},{2})", item.type, item.size, item.version));
 			}
 			return true;
 		}
 		public bool check_items(ushort num_items, LASitem[] items)
 		{
-			if (num_items == 0) return return_error("number of items cannot be zero");
-			if (items == null) return return_error("items pointer cannot be NULL");
+			if (num_items == 0) return return_error("Number of items cannot be zero");
+			if (items == null) return return_error("Items pointer cannot be NULL");
 			for (int i = 0; i < num_items; i++)
 			{
 				if (!check_item(items[i])) return false;
@@ -179,12 +179,12 @@ namespace LasLibNet
 					break;
 				default:
 					if (true)
-						return return_error(string.Format("point type {0} unknown", point_type));
+						return return_error(string.Format("Point type {0} unknown", point_type));
 			}
 
 			if (extra_bytes_number < 0)
 			{
-				Console.Error.WriteLine("WARNING: point size {0} too small by {1} bytes for point type {2}. assuming point_size of {3}", point_size, -extra_bytes_number, point_type, point_size - extra_bytes_number);
+				//Console.Error.WriteLine("WARNING: point size {0} too small by {1} bytes for point type {2}. assuming point_size of {3}", point_size, -extra_bytes_number, point_type, point_size - extra_bytes_number);
 				extra_bytes_number = 0;
 			}
 
@@ -259,14 +259,14 @@ namespace LasLibNet
 			point_type = 127;
 			record_length = 0;
 
-			if (items == null) return return_error("LASitem array is zero");
+			if (items == null) return return_error("LASItem array is zero");
 
 			for (int i = 0; i < num_items; i++) record_length += items[i].size;
 
 			// the minimal number of items is 1
-			if (num_items < 1) return return_error("less than one LASitem entries");
+			if (num_items < 1) return return_error("Less than one LASitem entries");
 			// the maximal number of items is 5
-			if (num_items > 5) return return_error("more than five LASitem entries");
+			if (num_items > 5) return return_error("More than five LASitem entries");
 
 			if (items[0].is_type(LASitem.Type.POINT10))
 			{
@@ -503,9 +503,9 @@ namespace LasLibNet
 			}
 			else
 			{
-				return_error("first LASitem is neither POINT10 nor POINT14");
+				return_error("First LASItem is neither POINT10 nor POINT14");
 			}
-			return return_error("LASitem array does not match LAS specification 1.4");
+			return return_error("LASItem array does not match LAS specification 1.4");
 		}
 		public bool is_standard(out byte point_type, out ushort record_length)
 		{
@@ -517,9 +517,9 @@ namespace LasLibNet
 		public unsafe bool unpack(byte[] bytes, int num)
 		{
 			// check input
-			if (num < 34) return return_error("too few bytes to unpack");
-			if (((num - 34) % 6) != 0) return return_error("wrong number bytes to unpack");
-			if (((num - 34) / 6) == 0) return return_error("zero items to unpack");
+			if (num < 34) return return_error("Too few bytes to unpack");
+			if (((num - 34) % 6) != 0) return return_error("Wrong number bytes to unpack");
+			if (((num - 34) / 6) == 0) return return_error("Zero items to unpack");
 			num_items = (ushort)((num - 34) / 6);
 
 			// create item list
@@ -663,7 +663,7 @@ namespace LasLibNet
 		}
 		public bool set_chunk_size(uint chunk_size) // for compressor only
 		{
-			if (num_items == 0) return return_error("call setup() before setting chunk size");
+			if (num_items == 0) return return_error("Call setup() before setting chunk size");
 			if (compressor == COMPRESSOR_POINTWISE_CHUNKED)
 			{
 				this.chunk_size = chunk_size;
@@ -673,15 +673,15 @@ namespace LasLibNet
 		}
 		public bool request_version(ushort requested_version) // for compressor only
 		{
-			if (num_items == 0) return return_error("call setup() before requesting version");
+			if (num_items == 0) return return_error("Call setup() before requesting version");
 			if (compressor == COMPRESSOR_NONE)
 			{
-				if (requested_version > 0) return return_error("without compression version is always 0");
+				if (requested_version > 0) return return_error("Without compression version is always 0");
 			}
 			else
 			{
-				if (requested_version < 1) return return_error("with compression version is at least 1");
-				if (requested_version > 2) return return_error("version larger than 2 not supported");
+				if (requested_version < 1) return return_error("With compression version is at least 1");
+				if (requested_version > 2) return return_error("Version larger than 2 not supported");
 			}
 			for (int i = 0; i < num_items; i++)
 			{
@@ -692,7 +692,7 @@ namespace LasLibNet
 					case LASitem.Type.RGB12:
 					case LASitem.Type.BYTE: items[i].version = requested_version; break;
 					case LASitem.Type.WAVEPACKET13: items[i].version = 1; break; // no version 2
-					default: return return_error("itrm type not supported");
+					default: return return_error("Item type not supported");
 				}
 			}
 			return true;
@@ -701,7 +701,7 @@ namespace LasLibNet
 		// in case a function returns false this string describes the problem
 		public string get_error() { return error_string; }
 
-		// stored in LASzip VLR data section
+		// stored in LasFile VLR data section
 		public ushort compressor;
 		public ushort coder;
 		public byte version_major;
@@ -733,7 +733,7 @@ namespace LasLibNet
 
 		bool return_error(string error)
 		{
-			error_string = string.Format("{0} (LASzip v{1}.{2}r{3})", error, VERSION_MAJOR, VERSION_MINOR, VERSION_REVISION);
+			error_string = string.Format("{0} (LasFile v{1}.{2}r{3})", error, VERSION_MAJOR, VERSION_MINOR, VERSION_REVISION);
 			return false;
 		}
 

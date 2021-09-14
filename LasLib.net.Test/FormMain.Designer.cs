@@ -41,19 +41,16 @@
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.dgvInfo = new System.Windows.Forms.DataGridView();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.dgvData = new System.Windows.Forms.DataGridView();
-            this.colId = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colX = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colY = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colZ = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colI = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colR = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colG = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colB = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.colKey = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.colVal = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.dgvData = new System.Windows.Forms.DataGridView();
+            this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
+            this.toolStripButton4 = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.tsbCreateLas = new System.Windows.Forms.ToolStripButton();
+            this.tsbSaveAs = new System.Windows.Forms.ToolStripButton();
+            this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.toolStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -71,7 +68,11 @@
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripButton1,
             this.toolStripButton2,
-            this.toolStripButton3});
+            this.toolStripButton3,
+            this.toolStripButton4,
+            this.toolStripSeparator1,
+            this.tsbCreateLas,
+            this.tsbSaveAs});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Size = new System.Drawing.Size(1135, 25);
@@ -201,6 +202,18 @@
             this.dgvInfo.Size = new System.Drawing.Size(343, 742);
             this.dgvInfo.TabIndex = 0;
             // 
+            // colKey
+            // 
+            this.colKey.HeaderText = "Key";
+            this.colKey.Name = "colKey";
+            this.colKey.ReadOnly = true;
+            // 
+            // colVal
+            // 
+            this.colVal.HeaderText = "Value";
+            this.colVal.Name = "colVal";
+            this.colVal.ReadOnly = true;
+            // 
             // groupBox1
             // 
             this.groupBox1.Controls.Add(this.dgvData);
@@ -217,15 +230,6 @@
             this.dgvData.AllowUserToAddRows = false;
             this.dgvData.AllowUserToDeleteRows = false;
             this.dgvData.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvData.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
-            this.colId,
-            this.colX,
-            this.colY,
-            this.colZ,
-            this.colI,
-            this.colR,
-            this.colG,
-            this.colB});
             this.dgvData.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvData.Location = new System.Drawing.Point(3, 17);
             this.dgvData.Name = "dgvData";
@@ -234,75 +238,49 @@
             this.dgvData.Size = new System.Drawing.Size(776, 742);
             this.dgvData.TabIndex = 0;
             // 
-            // colId
-            // 
-            this.colId.HeaderText = "id";
-            this.colId.Name = "colId";
-            this.colId.ReadOnly = true;
-            this.colId.Width = 60;
-            // 
-            // colX
-            // 
-            this.colX.HeaderText = "X";
-            this.colX.Name = "colX";
-            this.colX.ReadOnly = true;
-            // 
-            // colY
-            // 
-            this.colY.HeaderText = "Y";
-            this.colY.Name = "colY";
-            this.colY.ReadOnly = true;
-            // 
-            // colZ
-            // 
-            this.colZ.HeaderText = "Z";
-            this.colZ.Name = "colZ";
-            this.colZ.ReadOnly = true;
-            // 
-            // colI
-            // 
-            this.colI.HeaderText = "Intensity";
-            this.colI.Name = "colI";
-            this.colI.ReadOnly = true;
-            // 
-            // colR
-            // 
-            this.colR.HeaderText = "R";
-            this.colR.Name = "colR";
-            this.colR.ReadOnly = true;
-            this.colR.Width = 80;
-            // 
-            // colG
-            // 
-            this.colG.HeaderText = "G";
-            this.colG.Name = "colG";
-            this.colG.ReadOnly = true;
-            this.colG.Width = 80;
-            // 
-            // colB
-            // 
-            this.colB.HeaderText = "B";
-            this.colB.Name = "colB";
-            this.colB.ReadOnly = true;
-            this.colB.Width = 80;
-            // 
             // openFileDialog
             // 
             this.openFileDialog.DefaultExt = "las";
             this.openFileDialog.FileName = "Select a Las File";
             this.openFileDialog.Filter = "Las file|*.las|All Files|*.*";
+            this.openFileDialog.Title = "Open a Las File";
             // 
-            // colKey
+            // toolStripButton4
             // 
-            this.colKey.HeaderText = "Key";
-            this.colKey.Name = "colKey";
-            this.colKey.ReadOnly = true;
+            this.toolStripButton4.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton4.Image")));
+            this.toolStripButton4.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButton4.Name = "toolStripButton4";
+            this.toolStripButton4.Size = new System.Drawing.Size(106, 22);
+            this.toolStripButton4.Text = "Close Reader";
+            this.toolStripButton4.Click += new System.EventHandler(this.toolStripButton4_Click);
             // 
-            // colVal
+            // toolStripSeparator1
             // 
-            this.colVal.HeaderText = "Value";
-            this.colVal.Name = "colVal";
-            this.colVal.ReadOnly = true;
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(6, 25);
+            // 
+            // tsbCreateLas
+            // 
+            this.tsbCreateLas.Image = ((System.Drawing.Image)(resources.GetObject("tsbCreateLas.Image")));
+            this.tsbCreateLas.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbCreateLas.Name = "tsbCreateLas";
+            this.tsbCreateLas.Size = new System.Drawing.Size(112, 22);
+            this.tsbCreateLas.Text = "Create Las File";
+            this.tsbCreateLas.Click += new System.EventHandler(this.tsbCreateLas_Click);
+            // 
+            // tsbSaveAs
+            // 
+            this.tsbSaveAs.Image = ((System.Drawing.Image)(resources.GetObject("tsbSaveAs.Image")));
+            this.tsbSaveAs.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbSaveAs.Name = "tsbSaveAs";
+            this.tsbSaveAs.Size = new System.Drawing.Size(80, 22);
+            this.tsbSaveAs.Text = "Clone To";
+            this.tsbSaveAs.Click += new System.EventHandler(this.tsbSaveAs_Click);
+            // 
+            // saveFileDialog
+            // 
+            this.saveFileDialog.Filter = "*.las|*.las|All File|*.*";
+            this.saveFileDialog.Title = "Create a Las File";
             // 
             // FormMain
             // 
@@ -350,16 +328,13 @@
         private System.Windows.Forms.ToolStripButton toolStripButton2;
         private System.Windows.Forms.ToolStripButton toolStripButton3;
         private System.Windows.Forms.OpenFileDialog openFileDialog;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colId;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colX;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colY;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colZ;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colI;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colR;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colG;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colB;
         private System.Windows.Forms.DataGridViewTextBoxColumn colKey;
         private System.Windows.Forms.DataGridViewTextBoxColumn colVal;
+        private System.Windows.Forms.ToolStripButton toolStripButton4;
+        private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
+        private System.Windows.Forms.ToolStripButton tsbCreateLas;
+        private System.Windows.Forms.ToolStripButton tsbSaveAs;
+        private System.Windows.Forms.SaveFileDialog saveFileDialog;
     }
 }
 

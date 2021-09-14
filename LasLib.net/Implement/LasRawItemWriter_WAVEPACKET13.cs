@@ -1,10 +1,10 @@
 ﻿//===============================================================================
 //
-//  FILE:  laszip_geokey.cs
+//  FILE:  laswriteitemraw_wavepacket13.cs
 //
 //  CONTENTS:
 //
-//    C# port of a simple DLL interface to LasFile.
+//    Implementation of LasRawItemWriter for WAVEPACKET13 items.
 //
 //  PROGRAMMERS:
 //
@@ -26,17 +26,26 @@
 //
 //===============================================================================
 
+using LasLibNet.Abstract;
 
-using System.Runtime.InteropServices;
-
-namespace LasLibNet.Model
+namespace LasLibNet.Implement
 {
-	[StructLayout(LayoutKind.Sequential, Pack=1)]
-	public struct LasGeokey
+	class LasRawItemWriter_WAVEPACKET13 : LasRawItemWriter
 	{
-		public ushort key_id;
-		public ushort tiff_tag_location;
-		public ushort count;
-		public ushort value_offset;
+		public LasRawItemWriter_WAVEPACKET13() { }
+
+		public override bool write(LasPoint item)
+		{
+			try
+			{
+				outstream.Write(item.wave_packet, 0, 29);
+			}
+			catch
+			{
+				return false;
+			}
+
+			return true;
+		}
 	}
 }
