@@ -196,6 +196,7 @@ namespace LasLibNet
 			}
 			else
 			{
+				//Why write a same point three times????? By Li.GQ, 2021/9/17/
 				for(uint i=0; i<num_writers; i++)
 				{
 					writers_raw[i].write(point);

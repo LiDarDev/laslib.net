@@ -22,6 +22,11 @@ namespace LasLibNet
     /// </summary>
     public class LasWriter
     {
+        #region member variables
+
+        // If create a new las file, this varaible is TRUE. If clone a las file, this.variable is false.
+        private bool isNewLasFile = true;
+
         private LasHeader header = new LasHeader();
         /// <summary>
         /// Las File Header Infor.
@@ -52,8 +57,9 @@ namespace LasLibNet
         /// Return the warning message.
         /// </summary>
         public string Warning { get => this.warning; }
+        #endregion
 
-
+        #region Init or Set header info.
         /// <summary>
         /// Clearn the field variables.
         /// </summary>
@@ -161,6 +167,9 @@ namespace LasLibNet
                 header.x_scale_factor = 0.01;
                 header.y_scale_factor = 0.01;
                 header.z_scale_factor = 0.01;
+
+                // Note this is a new las file.
+                this.isNewLasFile = true;
             }
             catch
             {
@@ -178,8 +187,12 @@ namespace LasLibNet
         public void SetHeader(LasHeader header)
         {
             this.header = header;
+            //Note this is a las cloned from another file.
+            this.isNewLasFile = false;
         }
+        #endregion
 
+        #region Open writer
         public bool OpenWriter(Stream streamout, bool compress, bool leaveOpen = false)
         {
             if (!streamout.CanWrite)
@@ -230,10 +243,10 @@ namespace LasLibNet
 
             try
             {
-                LasFile laszip;
-                uint laszip_vrl_payload_size;
+                LasFile lasfile;
+                uint vrl_payload_size;
 
-                bool err = CheckHeaderAndSetup(header, compress, out laszip, ref point, out laszip_vrl_payload_size, out error);
+                bool err = CheckHeaderAndSetup(header, compress, out lasfile, ref point, out vrl_payload_size, out error);
                 if (err ==false) return err;
 
                 #region open the file
@@ -249,7 +262,7 @@ namespace LasLibNet
                 }
                 #endregion
 
-                return OpenWriterStream(compress, laszip, laszip_vrl_payload_size);
+                return OpenWriterStream(compress, lasfile, vrl_payload_size);
             }
             catch
             {
@@ -258,9 +271,11 @@ namespace LasLibNet
             }
         }
 
-        bool OpenWriterStream(bool compress, LasFile laszip, uint laszip_vrl_payload_size)
+        bool OpenWriterStream(bool compress, LasFile lasfile, uint vrl_payload_size)
         {
             #region write the header variable after variable
+
+            #region PUBLIC HEADER BLOCK
             try
             {
                 streamout.WriteByte((byte)'L');
@@ -325,261 +340,279 @@ namespace LasLibNet
             try { streamout.Write(BitConverter.GetBytes(header.header_size), 0, 2); }
             catch { error = "Writing header.header_size failed"; return false; }
 
-            if (compress) header.offset_to_point_data += (54 + laszip_vrl_payload_size);
+            /* ////////////////////////// Remove the VRL Fields , By Li G.Q. 2021/9/17/
+            if (compress) header.offset_to_point_data += (54 + laszip_vrl_payload_size+8);  //+8 chunk_table_start_position 8byte,Ligq,2021/9/16/
+            ///////////////////////////////////////////////////////////////////////// */
 
             try { streamout.Write(BitConverter.GetBytes(header.offset_to_point_data), 0, 4); }
             catch { error = "Writing header.offset_to_point_data failed"; return false; }
 
+            /* ////////////////////////// Remove the VRL Fields , By Li G.Q. 2021/9/17/
             if (compress)
             {
-                header.offset_to_point_data -= (54 + laszip_vrl_payload_size);
+                header.offset_to_point_data -= (54 + laszip_vrl_payload_size+8);//+8 chunk_table_start_position 8byte,Ligq,2021/9/16/
                 header.number_of_variable_length_records += 1;
             }
+            ///////////////////////////////////////////////////////////////////////// */
 
             try { streamout.Write(BitConverter.GetBytes(header.number_of_variable_length_records), 0, 4); }
             catch { error = "Writing header.number_of_variable_length_records failed"; return false; }
 
-            if (compress)
-            {
-                header.number_of_variable_length_records -= 1;
-                //header.point_data_format |= 128;
-            }
+            /* ////////////////////////// Remove the VRL Fields , By Li G.Q. 2021/9/17/
+           if (compress)
+           {
+               header.number_of_variable_length_records -= 1;
+               //header.point_data_format |= 128;
+           }
+           ///////////////////////////////////////////////////////////////////////// */
 
-            try { streamout.WriteByte(header.point_data_format); }
-            catch { error = "Writing header.point_data_format failed"; return false; }
+           try { streamout.WriteByte(header.point_data_format); }
+           catch { error = "Writing header.point_data_format failed"; return false; }
 
-            if (compress) header.point_data_format &= 127;
+           if (compress) header.point_data_format &= 127;
 
-            try { streamout.Write(BitConverter.GetBytes(header.point_data_record_length), 0, 2); }
-            catch { error = "Writing header.point_data_record_length failed"; return false; }
+           try { streamout.Write(BitConverter.GetBytes(header.point_data_record_length), 0, 2); }
+           catch { error = "Writing header.point_data_record_length failed"; return false; }
 
-            try { streamout.Write(BitConverter.GetBytes(header.number_of_point_records), 0, 4); }
-            catch { error = "Writing header.number_of_point_records failed"; return false; }
+           try { streamout.Write(BitConverter.GetBytes(header.number_of_point_records), 0, 4); }
+           catch { error = "Writing header.number_of_point_records failed"; return false; }
 
-            for (uint i = 0; i < 5; i++)
-            {
-                try { streamout.Write(BitConverter.GetBytes(header.number_of_points_by_return[i]), 0, 4); }
-                catch { error = string.Format("Writing header.number_of_points_by_return {0} failed", i); return false; }
-            }
+           for (uint i = 0; i < 5; i++)
+           {
+               try { streamout.Write(BitConverter.GetBytes(header.number_of_points_by_return[i]), 0, 4); }
+               catch { error = string.Format("Writing header.number_of_points_by_return {0} failed", i); return false; }
+           }
+           #region write the scale/max/min
+           try { streamout.Write(BitConverter.GetBytes(header.x_scale_factor), 0, 8); }
+           catch { error = "Writing header.x_scale_factor failed"; return false; }
 
-            try { streamout.Write(BitConverter.GetBytes(header.x_scale_factor), 0, 8); }
-            catch { error = "Writing header.x_scale_factor failed"; return false; }
+           try { streamout.Write(BitConverter.GetBytes(header.y_scale_factor), 0, 8); }
+           catch { error = "Writing header.y_scale_factor failed"; return false; }
 
-            try { streamout.Write(BitConverter.GetBytes(header.y_scale_factor), 0, 8); }
-            catch { error = "Writing header.y_scale_factor failed"; return false; }
+           try { streamout.Write(BitConverter.GetBytes(header.z_scale_factor), 0, 8); }
+           catch { error = "Writing header.z_scale_factor failed"; return false; }
 
-            try { streamout.Write(BitConverter.GetBytes(header.z_scale_factor), 0, 8); }
-            catch { error = "Writing header.z_scale_factor failed"; return false; }
+           try { streamout.Write(BitConverter.GetBytes(header.x_offset), 0, 8); }
+           catch { error = "Writing header.x_offset failed"; return false; }
 
-            try { streamout.Write(BitConverter.GetBytes(header.x_offset), 0, 8); }
-            catch { error = "Writing header.x_offset failed"; return false; }
+           try { streamout.Write(BitConverter.GetBytes(header.y_offset), 0, 8); }
+           catch { error = "Writing header.y_offset failed"; return false; }
 
-            try { streamout.Write(BitConverter.GetBytes(header.y_offset), 0, 8); }
-            catch { error = "Writing header.y_offset failed"; return false; }
+           try { streamout.Write(BitConverter.GetBytes(header.z_offset), 0, 8); }
+           catch { error = "Writing header.z_offset failed"; return false; }
 
-            try { streamout.Write(BitConverter.GetBytes(header.z_offset), 0, 8); }
-            catch { error = "Writing header.z_offset failed"; return false; }
+           try { streamout.Write(BitConverter.GetBytes(header.max_x), 0, 8); }
+           catch { error = "Writing header.max_x failed"; return false; }
 
-            try { streamout.Write(BitConverter.GetBytes(header.max_x), 0, 8); }
-            catch { error = "Writing header.max_x failed"; return false; }
+           try { streamout.Write(BitConverter.GetBytes(header.min_x), 0, 8); }
+           catch { error = "Writing header.min_x failed"; return false; }
 
-            try { streamout.Write(BitConverter.GetBytes(header.min_x), 0, 8); }
-            catch { error = "Writing header.min_x failed"; return false; }
+           try { streamout.Write(BitConverter.GetBytes(header.max_y), 0, 8); }
+           catch { error = "Writing header.max_y failed"; return false; }
 
-            try { streamout.Write(BitConverter.GetBytes(header.max_y), 0, 8); }
-            catch { error = "Writing header.max_y failed"; return false; }
+           try { streamout.Write(BitConverter.GetBytes(header.min_y), 0, 8); }
+           catch { error = "Writing header.min_y failed"; return false; }
 
-            try { streamout.Write(BitConverter.GetBytes(header.min_y), 0, 8); }
-            catch { error = "Writing header.min_y failed"; return false; }
+           try { streamout.Write(BitConverter.GetBytes(header.max_z), 0, 8); }
+           catch { error = "Writing header.max_z failed"; return false; }
 
-            try { streamout.Write(BitConverter.GetBytes(header.max_z), 0, 8); }
-            catch { error = "Writing header.max_z failed"; return false; }
+           try { streamout.Write(BitConverter.GetBytes(header.min_z), 0, 8); }
+           catch { error = "Writing header.min_z failed"; return false; }
+           #endregion
 
-            try { streamout.Write(BitConverter.GetBytes(header.min_z), 0, 8); }
-            catch { error = "Writing header.min_z failed"; return false; }
+           ////// Finish PUBLIC HEADER BLOCK ///////////////////////
+           #endregion
 
-            #region special handling for LAS 1.3+
-            if (header.version_major == 1 && header.version_minor >= 3)
-            {
-                if (header.header_size < 235)
-                {
-                    error = string.Format("For LAS 1.{0} header_size should at least be 235 but it is only {1}"
-                        , header.version_minor, header.header_size);
-                    return false;
-                }
+           //// File offset: 227
 
-                try { streamout.Write(BitConverter.GetBytes(header.start_of_waveform_data_packet_record), 0, 8); }
-                catch { error = "Writing header.start_of_waveform_data_packet_record failed"; return false; }
+           #region special handling for LAS 1.3+
+           if (header.version_major == 1 && header.version_minor >= 3)
+           {
+               if (header.header_size < 235)
+               {
+                   error = string.Format("For LAS 1.{0} header_size should at least be 235 but it is only {1}"
+                       , header.version_minor, header.header_size);
+                   return false;
+               }
 
-                header.user_data_in_header_size = header.header_size - 235u;
-            }
-            else header.user_data_in_header_size = header.header_size - 227u;
+               try { streamout.Write(BitConverter.GetBytes(header.start_of_waveform_data_packet_record), 0, 8); }
+               catch { error = "Writing header.start_of_waveform_data_packet_record failed"; return false; }
+
+               header.user_data_in_header_size = header.header_size - 235u;
+           }
+           else header.user_data_in_header_size = header.header_size - 227u;
+           #endregion
+
+           #region special handling for LAS 1.4+
+           if (header.version_major == 1 && header.version_minor >= 4)
+           {
+               if (header.header_size < 375)
+               {
+                   error = string.Format("For LAS 1.{0} header_size should at least be 375 but it is only {1}"
+                       , header.version_minor, header.header_size);
+                   return false;
+               }
+
+               try { streamout.Write(BitConverter.GetBytes(header.start_of_first_extended_variable_length_record), 0, 8); }
+               catch { error = "Writing header.start_of_first_extended_variable_length_record failed"; return false; }
+
+               try { streamout.Write(BitConverter.GetBytes(header.number_of_extended_variable_length_records), 0, 4); }
+               catch { error = "Writing header.number_of_extended_variable_length_records failed"; return false; }
+
+               try { streamout.Write(BitConverter.GetBytes(header.extended_number_of_point_records), 0, 8); }
+               catch { error = "Writing header.extended_number_of_point_records failed"; return false; }
+
+               for (uint i = 0; i < 15; i++)
+               {
+                   try { streamout.Write(BitConverter.GetBytes(header.extended_number_of_points_by_return[i]), 0, 8); }
+                   catch { error = string.Format("Writing header.extended_number_of_points_by_return[{0}] failed", i); return false; }
+               }
+
+               header.user_data_in_header_size = header.header_size - 375u;
+           }
+           #endregion
+
+           #region write any number of user-defined bytes that might have been added to the header
+           if (header.user_data_in_header_size != 0)
+           {
+               try { streamout.Write(header.user_data_in_header, 0, (int)header.user_data_in_header_size); }
+               catch { error = string.Format("Writing {0} bytes of data into header.user_data_in_header failed", header.user_data_in_header_size); return false; }
+           }
+           #endregion
+
+           #region write variable length records into the header
+           if (header.number_of_variable_length_records != 0)
+           {
+               for (int i = 0; i < header.number_of_variable_length_records; i++)
+               {
+                   // write variable length records variable after variable (to avoid alignment issues)
+                   try { streamout.Write(BitConverter.GetBytes(header.vlrs[i].reserved), 0, 2); }
+                   catch { error = string.Format("Writing header.vlrs[{0}].reserved failed", i); return false; }
+
+                   try { streamout.Write(header.vlrs[i].user_id, 0, 16); }
+                   catch { error = string.Format("Writing header.vlrs[{0}].user_id failed", i); return false; }
+
+                   try { streamout.Write(BitConverter.GetBytes(header.vlrs[i].record_id), 0, 2); }
+                   catch { error = string.Format("Writing header.vlrs[{0}].record_id failed", i); return false; }
+
+                   try { streamout.Write(BitConverter.GetBytes(header.vlrs[i].record_length_after_header), 0, 2); }
+                   catch { error = string.Format("Writing header.vlrs[{0}].record_length_after_header failed", i); return false; }
+
+                   try { streamout.Write(header.vlrs[i].description, 0, 32); }
+                   catch { error = string.Format("Writing header.vlrs[{0}].description failed", i); return false; }
+
+                   // write data following the header of the variable length record
+                   if (header.vlrs[i].record_length_after_header != 0)
+                   {
+                       try { streamout.Write(header.vlrs[i].data, 0, header.vlrs[i].record_length_after_header); }
+                       catch { error = string.Format("Writing {0} bytes of data into header.vlrs[{1}].data failed", header.vlrs[i].record_length_after_header, i); return false; }
+                   }
+               }
+           }
+
+           #region write the LasFile VLR header.    !! Not write the follow info. By Li G.Q., 2021/9/17/
+           /* ////////////////////////////////// Not write VLRS , By Li G.Q., 2021/9/17/
+           if (compress)
+           {
+
+               uint i = header.number_of_variable_length_records;
+
+               ushort reserved = 0xAABB;
+               try { streamout.Write(BitConverter.GetBytes(reserved), 0, 2); }                                 //2
+               catch { error = string.Format("Writing header.vlrs[{0}].reserved failed", i); return false; }
+
+               byte[] user_id1 = Encoding.ASCII.GetBytes("laszip encoded");
+               byte[] user_id = new byte[16];
+               Array.Copy(user_id1, user_id, Math.Min(16, user_id1.Length));
+               try { streamout.Write(user_id, 0, 16); }                                                        //18
+               catch { error = string.Format("Writing header.vlrs[{0}].user_id failed", i); return false; }
+
+               ushort record_id = 22204;
+               try { streamout.Write(BitConverter.GetBytes(record_id), 0, 2); }                                //20
+               catch { error = string.Format("Writing header.vlrs[{0}].record_id failed", i); return false; }
+
+               ushort record_length_after_header = (ushort)laszip_vrl_payload_size;
+               try { streamout.Write(BitConverter.GetBytes(record_length_after_header), 0, 2); }               //22
+               catch { error = string.Format("Writing header.vlrs[{0}].record_length_after_header failed", i); return false; }
+
+               // description field must be a null-terminate string, so we don't copy more than 31 characters
+               byte[] description1 = Encoding.ASCII.GetBytes(string.Format("LasLibNet {0}.{1} r{2} ({3})"
+                   , LasFile.VERSION_MAJOR
+                   , LasFile.VERSION_MINOR
+                   , LasFile.VERSION_REVISION
+                   , LasFile.VERSION_BUILD_DATE));
+
+               byte[] description = new byte[32];
+               Array.Copy(description1, description, Math.Min(31, description1.Length));
+
+               try { streamout.Write(description, 0, 32); }                                                    //54
+               catch { error = string.Format("Writing header.vlrs[{0}].description failed", i); return false; }
+
+               // write the LasFile VLR payload
+
+               //     U16  compressor                2 bytes
+               //     U32  coder                     2 bytes
+               //     U8   version_major             1 byte
+               //     U8   version_minor             1 byte
+               //     U16  version_revision          2 bytes
+               //     U32  options                   4 bytes
+               //     I32  chunk_size                4 bytes
+               //     I64  number_of_special_evlrs   8 bytes
+               //     I64  offset_to_special_evlrs   8 bytes
+               //     U16  num_items                 2 bytes
+               //        U16 type                2 bytes * num_items
+               //        U16 size                2 bytes * num_items
+               //        U16 version             2 bytes * num_items
+               // which totals 34+6*num_items
+
+               try { streamout.Write(BitConverter.GetBytes(laszip.compressor), 0, 2); }                           //2
+               catch { error = string.Format("Writing compressor {0} failed", laszip.compressor); return false; }
+
+               try { streamout.Write(BitConverter.GetBytes(laszip.coder), 0, 2); }                                 //4
+               catch { error = string.Format("Writing coder {0} failed", laszip.coder); return false; }
+
+               try { streamout.WriteByte(laszip.version_major); }                                                  //5
+               catch { error = string.Format("Writing version_major {0} failed", laszip.version_major); return false; }
+
+               try { streamout.WriteByte(laszip.version_minor); }                                                  //6
+               catch { error = string.Format("Writing version_minor {0} failed", laszip.version_minor); return false; }
+
+               try { streamout.Write(BitConverter.GetBytes(laszip.version_revision), 0, 2); }                      //8
+               catch { error = string.Format("Writing version_revision {0} failed", laszip.version_revision); return false; }
+
+               try { streamout.Write(BitConverter.GetBytes(laszip.options), 0, 4); }                               //12
+               catch { error = string.Format("Writing options {0} failed", laszip.options); return false; }
+
+               try { streamout.Write(BitConverter.GetBytes(laszip.chunk_size), 0, 4); }                            //16
+               catch { error = string.Format("Writing chunk_size {0} failed", laszip.chunk_size); return false; }
+
+               try { streamout.Write(BitConverter.GetBytes(laszip.number_of_special_evlrs), 0, 8); }               //24
+               catch { error = string.Format("Writing number_of_special_evlrs {0} failed", laszip.number_of_special_evlrs); return false; }
+
+               try { streamout.Write(BitConverter.GetBytes(laszip.offset_to_special_evlrs), 0, 8); }               //32
+               catch { error = string.Format("Writing offset_to_special_evlrs {0} failed", laszip.offset_to_special_evlrs); return false; }
+
+               try { streamout.Write(BitConverter.GetBytes(laszip.num_items), 0, 2); }                             //34
+               catch { error = string.Format("Writing num_items {0} failed", laszip.num_items); return false; }
+
+               for (uint j = 0; j < laszip.num_items; j++)
+               {
+                   ushort type = (ushort)laszip.items[j].type;
+                   try { streamout.Write(BitConverter.GetBytes(type), 0, 2); }
+                   catch { error = string.Format("Writing type {0} of item {1} failed", laszip.items[j].type, j); return false; }
+
+                   try { streamout.Write(BitConverter.GetBytes(laszip.items[j].size), 0, 2); }
+                   catch { error = string.Format("Writing size {0} of item {1} failed", laszip.items[j].size, j); return false; }
+
+                   try { streamout.Write(BitConverter.GetBytes(laszip.items[j].version), 0, 2); }
+                   catch { error = string.Format("Writing version {0} of item {1} failed", laszip.items[j].version, j); return false; }
+               }
+               //34+num_items*6
+
+           }
+           ////////////////////////////////////////////////////////////////////////////////////////////////////  */
             #endregion
 
-            #region special handling for LAS 1.4+
-            if (header.version_major == 1 && header.version_minor >= 4)
-            {
-                if (header.header_size < 375)
-                {
-                    error = string.Format("For LAS 1.{0} header_size should at least be 375 but it is only {1}"
-                        , header.version_minor, header.header_size);
-                    return false;
-                }
-
-                try { streamout.Write(BitConverter.GetBytes(header.start_of_first_extended_variable_length_record), 0, 8); }
-                catch { error = "Writing header.start_of_first_extended_variable_length_record failed"; return false; }
-
-                try { streamout.Write(BitConverter.GetBytes(header.number_of_extended_variable_length_records), 0, 4); }
-                catch { error = "Writing header.number_of_extended_variable_length_records failed"; return false; }
-
-                try { streamout.Write(BitConverter.GetBytes(header.extended_number_of_point_records), 0, 8); }
-                catch { error = "Writing header.extended_number_of_point_records failed"; return false; }
-
-                for (uint i = 0; i < 15; i++)
-                {
-                    try { streamout.Write(BitConverter.GetBytes(header.extended_number_of_points_by_return[i]), 0, 8); }
-                    catch { error = string.Format("Writing header.extended_number_of_points_by_return[{0}] failed", i); return false; }
-                }
-
-                header.user_data_in_header_size = header.header_size - 375u;
-            }
-            #endregion
-
-            #region write any number of user-defined bytes that might have been added to the header
-            if (header.user_data_in_header_size != 0)
-            {
-                try { streamout.Write(header.user_data_in_header, 0, (int)header.user_data_in_header_size); }
-                catch { error = string.Format("Writing {0} bytes of data into header.user_data_in_header failed", header.user_data_in_header_size); return false; }
-            }
-            #endregion
-
-            #region write variable length records into the header
-            if (header.number_of_variable_length_records != 0)
-            {
-                for (int i = 0; i < header.number_of_variable_length_records; i++)
-                {
-                    // write variable length records variable after variable (to avoid alignment issues)
-                    try { streamout.Write(BitConverter.GetBytes(header.vlrs[i].reserved), 0, 2); }
-                    catch { error = string.Format("Writing header.vlrs[{0}].reserved failed", i); return false; }
-
-                    try { streamout.Write(header.vlrs[i].user_id, 0, 16); }
-                    catch { error = string.Format("Writing header.vlrs[{0}].user_id failed", i); return false; }
-
-                    try { streamout.Write(BitConverter.GetBytes(header.vlrs[i].record_id), 0, 2); }
-                    catch { error = string.Format("Writing header.vlrs[{0}].record_id failed", i); return false; }
-
-                    try { streamout.Write(BitConverter.GetBytes(header.vlrs[i].record_length_after_header), 0, 2); }
-                    catch { error = string.Format("Writing header.vlrs[{0}].record_length_after_header failed", i); return false; }
-
-                    try { streamout.Write(header.vlrs[i].description, 0, 32); }
-                    catch { error = string.Format("Writing header.vlrs[{0}].description failed", i); return false; }
-
-                    // write data following the header of the variable length record
-                    if (header.vlrs[i].record_length_after_header != 0)
-                    {
-                        try { streamout.Write(header.vlrs[i].data, 0, header.vlrs[i].record_length_after_header); }
-                        catch { error = string.Format("Writing {0} bytes of data into header.vlrs[{1}].data failed", header.vlrs[i].record_length_after_header, i); return false; }
-                    }
-                }
-            }
-
-            if (compress)
-            {
-                #region write the LasFile VLR header
-                uint i = header.number_of_variable_length_records;
-
-                ushort reserved = 0xAABB;
-                try { streamout.Write(BitConverter.GetBytes(reserved), 0, 2); }
-                catch { error = string.Format("Writing header.vlrs[{0}].reserved failed", i); return false; }
-
-                byte[] user_id1 = Encoding.ASCII.GetBytes("laszip encoded");
-                byte[] user_id = new byte[16];
-                Array.Copy(user_id1, user_id, Math.Min(16, user_id1.Length));
-                try { streamout.Write(user_id, 0, 16); }
-                catch { error = string.Format("Writing header.vlrs[{0}].user_id failed", i); return false; }
-
-                ushort record_id = 22204;
-                try { streamout.Write(BitConverter.GetBytes(record_id), 0, 2); }
-                catch { error = string.Format("Writing header.vlrs[{0}].record_id failed", i); return false; }
-
-                ushort record_length_after_header = (ushort)laszip_vrl_payload_size;
-                try { streamout.Write(BitConverter.GetBytes(record_length_after_header), 0, 2); }
-                catch { error = string.Format("Writing header.vlrs[{0}].record_length_after_header failed", i); return false; }
-
-                // description field must be a null-terminate string, so we don't copy more than 31 characters
-                byte[] description1 = Encoding.ASCII.GetBytes(string.Format("LasLibNet {0}.{1} r{2} ({3})"
-                    , LasFile.VERSION_MAJOR
-                    , LasFile.VERSION_MINOR
-                    , LasFile.VERSION_REVISION
-                    , LasFile.VERSION_BUILD_DATE));
-
-                byte[] description = new byte[32];
-                Array.Copy(description1, description, Math.Min(31, description1.Length));
-
-                try { streamout.Write(description, 0, 32); }
-                catch { error = string.Format("Writing header.vlrs[{0}].description failed", i); return false; }
-
-                // write the LasFile VLR payload
-
-                //     U16  compressor                2 bytes
-                //     U32  coder                     2 bytes
-                //     U8   version_major             1 byte
-                //     U8   version_minor             1 byte
-                //     U16  version_revision          2 bytes
-                //     U32  options                   4 bytes
-                //     I32  chunk_size                4 bytes
-                //     I64  number_of_special_evlrs   8 bytes
-                //     I64  offset_to_special_evlrs   8 bytes
-                //     U16  num_items                 2 bytes
-                //        U16 type                2 bytes * num_items
-                //        U16 size                2 bytes * num_items
-                //        U16 version             2 bytes * num_items
-                // which totals 34+6*num_items
-
-                try { streamout.Write(BitConverter.GetBytes(laszip.compressor), 0, 2); }
-                catch { error = string.Format("Writing compressor {0} failed", laszip.compressor); return false; }
-
-                try { streamout.Write(BitConverter.GetBytes(laszip.coder), 0, 2); }
-                catch { error = string.Format("Writing coder {0} failed", laszip.coder); return false; }
-
-                try { streamout.WriteByte(laszip.version_major); }
-                catch { error = string.Format("Writing version_major {0} failed", laszip.version_major); return false; }
-
-                try { streamout.WriteByte(laszip.version_minor); }
-                catch { error = string.Format("Writing version_minor {0} failed", laszip.version_minor); return false; }
-
-                try { streamout.Write(BitConverter.GetBytes(laszip.version_revision), 0, 2); }
-                catch { error = string.Format("Writing version_revision {0} failed", laszip.version_revision); return false; }
-
-                try { streamout.Write(BitConverter.GetBytes(laszip.options), 0, 4); }
-                catch { error = string.Format("Writing options {0} failed", laszip.options); return false; }
-
-                try { streamout.Write(BitConverter.GetBytes(laszip.chunk_size), 0, 4); }
-                catch { error = string.Format("Writing chunk_size {0} failed", laszip.chunk_size); return false; }
-
-                try { streamout.Write(BitConverter.GetBytes(laszip.number_of_special_evlrs), 0, 8); }
-                catch { error = string.Format("Writing number_of_special_evlrs {0} failed", laszip.number_of_special_evlrs); return false; }
-
-                try { streamout.Write(BitConverter.GetBytes(laszip.offset_to_special_evlrs), 0, 8); }
-                catch { error = string.Format("Writing offset_to_special_evlrs {0} failed", laszip.offset_to_special_evlrs); return false; }
-
-                try { streamout.Write(BitConverter.GetBytes(laszip.num_items), 0, 2); }
-                catch { error = string.Format("Writing num_items {0} failed", laszip.num_items); return false; }
-
-                for (uint j = 0; j < laszip.num_items; j++)
-                {
-                    ushort type = (ushort)laszip.items[j].type;
-                    try { streamout.Write(BitConverter.GetBytes(type), 0, 2); }
-                    catch { error = string.Format("Writing type {0} of item {1} failed", laszip.items[j].type, j); return false; }
-
-                    try { streamout.Write(BitConverter.GetBytes(laszip.items[j].size), 0, 2); }
-                    catch { error = string.Format("Writing size {0} of item {1} failed", laszip.items[j].size, j); return false; }
-
-                    try { streamout.Write(BitConverter.GetBytes(laszip.items[j].version), 0, 2); }
-                    catch { error = string.Format("Writing version {0} of item {1} failed", laszip.items[j].version, j); return false; }
-                }
-                #endregion
-            }
             #endregion
 
             #region write any number of user-defined bytes that might have been added after the header
@@ -596,13 +629,13 @@ namespace LasLibNet
             try { writer = new LasPointWriter(); }
             catch { error = "Could not alloc LasPointWriter"; return false; }
 
-            if (!writer.setup(laszip.num_items, laszip.items, laszip))
+            if (!writer.setup(lasfile.num_items, lasfile.items, lasfile))
             {
                 error = "Setup of LasPointWriter failed";
                 return false;
             }
 
-            if (!writer.init(streamout))
+            if (!writer.init(streamout))  // Write chunk_table_start_position : 8 Byte
             {
                 error = "Init of LasPointWriter failed";
                 return false;
@@ -617,6 +650,46 @@ namespace LasLibNet
             return true;
         }
 
+        #endregion
+
+        #region Close writer
+        public bool CloseWriter()
+        {
+            if (writer == null)
+            {
+                error = "Closing writer before it was opened";
+                return false;
+            }
+
+            try
+            {
+                if (!writer.done())
+                {
+                    error = "Done of LasWriter failed";
+                    return false;
+                }
+
+                writer = null;
+                if (!leaveStreamOutOpen) streamout.Close();
+                streamout = null;
+            }
+            catch
+            {
+                error = "Internal error in CloseWriter";
+                return false;
+            }
+
+            error = null;
+            return true;
+        }
+        #endregion
+
+        #region write a point
+
+        /// <summary>
+        /// Write a point
+        /// </summary>
+        /// <returns></returns>
         public bool WritePoint()
         {
             if (writer == null)
@@ -646,35 +719,41 @@ namespace LasLibNet
             return true;
         }
 
-        public bool CloseWriter()
+        /// <summary>
+        /// Write a point
+        /// </summary>
+        /// <returns></returns>
+        public bool WritePoint(LasPoint point)
         {
             if (writer == null)
             {
-                error = "closing writer before it was opened";
+                error = "Writing points before writer was opened";
                 return false;
             }
 
             try
             {
-                if (!writer.done())
+                // write the point
+                if (!writer.write(point))
                 {
-                    error = "done of LasPointWriter failed";
+                    error = string.Format("Writing point with index {0} of {1} total points", p_count, npoints);
                     return false;
                 }
 
-                writer = null;
-                if (!leaveStreamOutOpen) streamout.Close();
-                streamout = null;
+                p_count++;
             }
             catch
             {
-                error = "internal error in laszip_writer_close";
+                error = "Internal error in laszip_write_point";
                 return false;
             }
 
             error = null;
             return true;
         }
+
+        #endregion
+
 
         bool CheckIntegerOverflow()
         {

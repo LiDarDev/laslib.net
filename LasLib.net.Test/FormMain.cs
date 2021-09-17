@@ -1,4 +1,6 @@
 ﻿using LasLibNet;
+using LasLibNet.Model;
+using LasLibNet.Utils;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -6,6 +8,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -27,9 +30,14 @@ namespace LasLib.net.Test
             InitializeComponent();
         }
 
+        /// <summary>
+        /// Open a las file
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void toolStripButton1_Click(object sender, EventArgs e)
         {
-            
+
             if (this.openFileDialog.ShowDialog() == DialogResult.OK)
             {
                 this.tslFile.Text = this.openFileDialog.FileName;
@@ -44,24 +52,35 @@ namespace LasLib.net.Test
             }
         }
 
+        /// <summary>
+        /// Display info.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void toolStripButton2_Click(object sender, EventArgs e)
         {
             lasHeader = this.lasReader.Header;
-            
+
             #region 创建数据行
-                     
-            this.dgvInfo.Rows.Add("Version",lasHeader.version_major+"."+lasHeader.version_minor);
-            this.dgvInfo.Rows.Add("Header Size",lasHeader.header_size.ToString());
-            this.dgvInfo.Rows.Add("Point Count",lasHeader.number_of_point_records.ToString());
-            this.dgvInfo.Rows.Add("X Max",lasHeader.max_x.ToString("f4"));
+
+            this.dgvInfo.Rows.Add("Version", lasHeader.version_major + "." + lasHeader.version_minor);
+            this.dgvInfo.Rows.Add("Header Size", lasHeader.header_size.ToString());
+            this.dgvInfo.Rows.Add("Point Count", lasHeader.number_of_point_records.ToString());
+            this.dgvInfo.Rows.Add("Point data format", lasHeader.point_data_format.ToString());
+            this.dgvInfo.Rows.Add("X Max", lasHeader.max_x.ToString("f4"));
             this.dgvInfo.Rows.Add("X Min", lasHeader.min_x.ToString("f4"));
-            this.dgvInfo.Rows.Add("Y Max",lasHeader.max_y.ToString("f4"));
-            this.dgvInfo.Rows.Add("Y Min",lasHeader.min_y.ToString("f4"));
+            this.dgvInfo.Rows.Add("Y Max", lasHeader.max_y.ToString("f4"));
+            this.dgvInfo.Rows.Add("Y Min", lasHeader.min_y.ToString("f4"));
             #endregion
 
+            Tools.DisplayClassProperties<LasHeader>(lasHeader);
         }
 
-
+        /// <summary>
+        /// Display all points
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void toolStripButton3_Click_1(object sender, EventArgs e)
         {
             this.tslMain.Text = " Reading data...";
@@ -89,11 +108,19 @@ namespace LasLib.net.Test
             #endregion
 
             #region Add Data Row
+            // Go to the first point
+            lasReader.SeekPoint(0);
+            if (this.dgvData.DataSource != null)
+            {
+                DataTable dt1 = (DataTable)this.dgvData.DataSource;
+                if (dt1 != null)
+                    dt1.Clear();
+            }
             // Loop through number of points indicated
             for (int pointIndex = 0; pointIndex < this.lasHeader.number_of_point_records; pointIndex++)
             {
                 // Read the point
-               LasPoint p =  lasReader.ReadPoint();
+                LasPoint_1_2_Format2 p =(LasPoint_1_2_Format2) lasReader.ReadPoint();
                 if (p == null)
                 {
                     MessageBox.Show(lasReader.Error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -104,9 +131,9 @@ namespace LasLib.net.Test
                 row[colY] = p.GeoY.ToString("f2");
                 row[colZ] = p.GeoZ.ToString("f2");
                 row[colI] = p.intensity.ToString();
-                row[colR] = p.rgb[0].ToString();
-                row[colG] = p.rgb[1].ToString();
-                row[colB] = p.rgb[2].ToString();
+                row[colR] = p.Red.ToString();
+                row[colG] = p.Green.ToString();
+                row[colB] = p.Blue.ToString();
                 dt.Rows.Add(row);
 
             }
@@ -119,6 +146,11 @@ namespace LasLib.net.Test
 
         }
 
+        /// <summary>
+        /// Close the reader
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void toolStripButton4_Click(object sender, EventArgs e)
         {
             this.lasReader.CloseReader();
@@ -130,6 +162,11 @@ namespace LasLib.net.Test
             this.tslFile.Text = "No file opened!";
         }
 
+        /// <summary>
+        /// Create a new las file
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void tsbCreateLas_Click(object sender, EventArgs e)
         {
             if (this.saveFileDialog.ShowDialog() != DialogResult.OK)
@@ -206,12 +243,68 @@ namespace LasLib.net.Test
             // --- Upon completion, file should be 389 bytes
         }
 
+        /// <summary>
+        /// Clone to another las file.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void tsbSaveAs_Click(object sender, EventArgs e)
         {
+            if (this.saveFileDialog.ShowDialog() != DialogResult.OK)
+            {
+                MessageBox.Show("You HAVE TO choose a las file!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+
+            string FileName = this.saveFileDialog.FileName;
+
             LasWriter lazWriter = new LasWriter();
             lazWriter.SetHeader(lasHeader);
 
-            lasReader.
+            bool result = lazWriter.OpenWriter(FileName, true);
+            if (!result)
+            {
+                MessageBox.Show(lazWriter.Error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Debug.WriteLine("  #Open Writer failed : " + lazWriter.Error);
+                lazWriter.CloseWriter();
+                return;
+            }
+
+
+            //lasReader.SeekPoint(0);
+            //// Loop through number of points indicated
+            //for (int pointIndex = 0; pointIndex < this.lasHeader.number_of_point_records; pointIndex++)
+            //{
+            //    // Read the point
+            //    LasPoint p = lasReader.ReadPoint();
+            //    if (p == null)
+            //    {
+            //        MessageBox.Show(lasReader.Error, "Read Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            //        Debug.WriteLine(" #Read point failed : " + lasReader.Error);
+            //        break;
+            //    }
+            //    // display the member attributes of the point.
+            //    Tools.DisplayClassProperties<LasPoint>(p);
+
+            //    result = lazWriter.WritePoint(p);
+            //    if (!result)
+            //    {
+            //        MessageBox.Show(lazWriter.Error, "Write failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            //        Debug.WriteLine("  #Write point failed : " + lazWriter.Error);
+            //        break;
+            //    }
+            //}
+                        
+            lazWriter.CloseWriter();
+
+            if (!result)
+            {
+                MessageBox.Show("An error occurred while writing to the data", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            else
+                MessageBox.Show("Save the data succesfully!", "Info.", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
+
     }
 }

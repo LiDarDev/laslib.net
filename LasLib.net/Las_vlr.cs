@@ -24,5 +24,17 @@ namespace LasLibNet
         public ushort record_length_after_header;
         public byte[] description = new byte[32];
         public byte[] data;
+
+        public override string ToString()
+        {
+            string str = "";
+            str = "\treserved = " + reserved.ToString() + "\n"
+               + "\tuser_id  = " + BitConverter.ToString(user_id) + "\n"
+               + "\trecord_id = " + record_id.ToString() + "\n"
+               + "\trecord_length_after_header = " + this.record_length_after_header.ToString() + "\n"
+               + "\tdescription = " + BitConverter.ToString(description) + "\n"
+               + "\tdata = " + BitConverter.ToString(data);
+            return str;
+        }
     }
 }

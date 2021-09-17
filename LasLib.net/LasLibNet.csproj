@@ -42,6 +42,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Abstract\ILasPointReader.cs" />
     <Compile Include="Abstract\LasCompressedItemReader.cs" />
     <Compile Include="Abstract\LasRawReaderAbstract.cs" />
     <Compile Include="Abstract\LasItemWriter.cs" />
@@ -87,10 +88,20 @@
     <Compile Include="Model\LasCommon_v1.cs" />
     <Compile Include="Model\LasCommon_v2.cs" />
     <Compile Include="Model\LasGeokey.cs" />
+    <Compile Include="Model\LasPointBase.cs" />
+    <Compile Include="Model\LasPoint_1_0.cs" />
+    <Compile Include="Model\LasPoint_1_1.cs" />
+    <Compile Include="Model\LasPoint_1_2.cs" />
+    <Compile Include="Model\LasPoint_1_3.cs" />
+    <Compile Include="Model\MyStruct.cs" />
     <Compile Include="Model\StreamingMedian5.cs" />
     <Compile Include="Model\U32I32F32.cs" />
     <Compile Include="Model\U64I64F64.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Reader\LasPointReaderBase.cs" />
+    <Compile Include="Reader\LasPoint_1_0_Reader.cs" />
+    <Compile Include="Reader\LasPoint_1_1_Reader.cs" />
+    <Compile Include="Reader\LasPoint_1_2_Reader.cs" />
     <Compile Include="Utils\ArithmeticBitModel.cs" />
     <Compile Include="Utils\ArithmeticDecoder.cs" />
     <Compile Include="Utils\ArithmeticEncoder.cs" />
@@ -98,6 +109,7 @@
     <Compile Include="Utils\Consts.cs" />
     <Compile Include="Utils\IntegerCompressor.cs" />
     <Compile Include="Utils\MyDefs.cs" />
+    <Compile Include="Utils\Tools.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -18,5 +19,12 @@ namespace LasLib.net.Test
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new FormMain());
         }
+
+        static void Test()
+        {
+            int i = 100;
+
+        }
+
     }
 }

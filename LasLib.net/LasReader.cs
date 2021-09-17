@@ -6,10 +6,13 @@
 /// Date    : 2021/9/13/
 ///////////////////////////////////////////////////////////////////////
 
+using LasLibNet.Abstract;
 using LasLibNet.Model;
+using LasLibNet.Reader;
 using LasLibNet.Utils;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -53,7 +56,11 @@ namespace LasLibNet
 
         Stream streamin;
         bool leaveStreamInOpen;
-        LasPointReader reader;
+        /// <summary>
+        /// Point reader.
+        /// </summary>
+        ILasPointReader reader;
+
 
         string error;
         /// <summary>
@@ -65,6 +72,20 @@ namespace LasLibNet
         /// Return the warning message.
         /// </summary>
         public string Warning { get => this.warning; }
+
+        /// <summary>
+        /// ExtHeader include PUBLIC HEADER BLOCK and VLRs. That is all data before the data.
+        /// </summary>
+        private byte[] ext_header;
+        public byte[] ExtHeader
+        {
+            get => this.ext_header;
+        }
+
+        /// <summary>
+        /// Temp buffer to storage the header buffer.
+        /// </summary>
+        private byte[] buffer_temp = new byte[2000];
 
         #endregion
 
@@ -82,17 +103,6 @@ namespace LasLibNet
             version_minor = LasFile.VERSION_MINOR;
             version_revision = LasFile.VERSION_REVISION;
             version_build = LasFile.VERSION_BUILD_DATE;
-        }
-
-        /// <summary>
-        /// Create las file reader.
-        /// </summary>
-        /// <returns></returns>
-        public static LasReader Create()
-        {
-            LasReader ret = new LasReader();
-            ret.Clean();
-            return ret;
         }
 
 
@@ -170,6 +180,8 @@ namespace LasLibNet
                     error = "Wrong file_signature is not a LAS/LAZ file.";
                     return false;
                 }
+                //Array.Copy(buffer, 0, buffer_temp, 0, 4);
+
 
                 if (streamin.Read(buffer, 0, 2) != 2)
                 {
@@ -177,6 +189,8 @@ namespace LasLibNet
                     return false;
                 }
                 header.file_source_ID = BitConverter.ToUInt16(buffer, 0);
+                //Array.Copy(buffer, 0, buffer_temp, 4, 2);
+
 
                 if (streamin.Read(buffer, 0, 2) != 2)
                 {
@@ -184,6 +198,7 @@ namespace LasLibNet
                     return false;
                 }
                 header.global_encoding = BitConverter.ToUInt16(buffer, 0);
+                //Array.Copy(buffer, 0, buffer_temp, 6, 2);
 
                 if (streamin.Read(buffer, 0, 4) != 4)
                 {
@@ -191,6 +206,7 @@ namespace LasLibNet
                     return false;
                 }
                 header.project_ID_GUID_data_1 = BitConverter.ToUInt32(buffer, 0);
+                //Array.Copy(buffer, 0, buffer_temp, 8, 4);
 
                 if (streamin.Read(buffer, 0, 2) != 2)
                 {
@@ -198,6 +214,7 @@ namespace LasLibNet
                     return false;
                 }
                 header.project_ID_GUID_data_2 = BitConverter.ToUInt16(buffer, 0);
+                //Array.Copy(buffer, 0, buffer_temp, 12, 2);
 
                 if (streamin.Read(buffer, 0, 2) != 2)
                 {
@@ -205,12 +222,15 @@ namespace LasLibNet
                     return false;
                 }
                 header.project_ID_GUID_data_3 = BitConverter.ToUInt16(buffer, 0);
+                //Array.Copy(buffer, 0, buffer_temp, 14, 2);
+
 
                 if (streamin.Read(header.project_ID_GUID_data_4, 0, 8) != 8)
                 {
                     error = "Reading header.project_ID_GUID_data_4 failed";
                     return false;
                 }
+                //Array.Copy(header.project_ID_GUID_data_4, 0, buffer_temp, 16, 8);
 
                 if (streamin.Read(buffer, 0, 1) != 1)
                 {
@@ -218,6 +238,7 @@ namespace LasLibNet
                     return false;
                 }
                 header.version_major = buffer[0];
+                //Array.Copy(buffer, 0, buffer_temp, 24, 1);
 
                 if (streamin.Read(buffer, 0, 1) != 1)
                 {
@@ -225,18 +246,21 @@ namespace LasLibNet
                     return false;
                 }
                 header.version_minor = buffer[0];
+                //Array.Copy(buffer, 0, buffer_temp, 25, 1);
 
                 if (streamin.Read(header.system_identifier, 0, 32) != 32)
                 {
                     error = "Reading header.system_identifier failed";
                     return false;
                 }
+                //Array.Copy(header.system_identifier, 0, buffer_temp, 26, 32);
 
                 if (streamin.Read(header.generating_software, 0, 32) != 32)
                 {
                     error = "Reading header.generating_software failed";
                     return false;
                 }
+                //Array.Copy(header.generating_software, 0, buffer_temp, 58, 32);
 
                 if (streamin.Read(buffer, 0, 2) != 2)
                 {
@@ -244,6 +268,7 @@ namespace LasLibNet
                     return false;
                 }
                 header.file_creation_day = BitConverter.ToUInt16(buffer, 0);
+                //Array.Copy(buffer, 0, buffer_temp, 90, 2);
 
                 if (streamin.Read(buffer, 0, 2) != 2)
                 {
@@ -251,6 +276,7 @@ namespace LasLibNet
                     return false;
                 }
                 header.file_creation_year = BitConverter.ToUInt16(buffer, 0);
+                //Array.Copy(buffer, 0, buffer_temp, 92, 2);
 
                 if (streamin.Read(buffer, 0, 2) != 2)
                 {
@@ -258,6 +284,7 @@ namespace LasLibNet
                     return false;
                 }
                 header.header_size = BitConverter.ToUInt16(buffer, 0);
+                //Array.Copy(buffer, 0, buffer_temp, 94, 2);
 
                 if (streamin.Read(buffer, 0, 4) != 4)
                 {
@@ -265,6 +292,7 @@ namespace LasLibNet
                     return false;
                 }
                 header.offset_to_point_data = BitConverter.ToUInt32(buffer, 0);
+                //Array.Copy(buffer, 0, buffer_temp, 96, 4);
 
                 if (streamin.Read(buffer, 0, 4) != 4)
                 {
@@ -272,6 +300,7 @@ namespace LasLibNet
                     return false;
                 }
                 header.number_of_variable_length_records = BitConverter.ToUInt32(buffer, 0);
+                //Array.Copy(buffer, 0, buffer_temp, 100, 4);
 
                 if (streamin.Read(buffer, 0, 1) != 1)
                 {
@@ -279,6 +308,7 @@ namespace LasLibNet
                     return false;
                 }
                 header.point_data_format = buffer[0];
+                //Array.Copy(buffer, 0, buffer_temp, 104, 1);
 
                 if (streamin.Read(buffer, 0, 2) != 2)
                 {
@@ -286,6 +316,7 @@ namespace LasLibNet
                     return false;
                 }
                 header.point_data_record_length = BitConverter.ToUInt16(buffer, 0);
+                //Array.Copy(buffer, 0, buffer_temp, 105, 2);
 
                 if (streamin.Read(buffer, 0, 4) != 4)
                 {
@@ -293,6 +324,7 @@ namespace LasLibNet
                     return false;
                 }
                 header.number_of_point_records = BitConverter.ToUInt32(buffer, 0);
+                //Array.Copy(buffer, 0, buffer_temp, 107, 4);
 
                 for (int i = 0; i < 5; i++)
                 {
@@ -302,6 +334,7 @@ namespace LasLibNet
                         return false;
                     }
                     header.number_of_points_by_return[i] = BitConverter.ToUInt32(buffer, 0);
+                    //Array.Copy(buffer, 0, buffer_temp,111+i*4, 4);
                 }
 
                 if (streamin.Read(buffer, 0, 8) != 8)
@@ -310,6 +343,7 @@ namespace LasLibNet
                     return false;
                 }
                 header.x_scale_factor = BitConverter.ToDouble(buffer, 0);
+                ////Array.Copy(buffer, 0, buffer_temp, 131, 8);
 
                 if (streamin.Read(buffer, 0, 8) != 8)
                 {
@@ -317,6 +351,7 @@ namespace LasLibNet
                     return false;
                 }
                 header.y_scale_factor = BitConverter.ToDouble(buffer, 0);
+                ////Array.Copy(buffer, 0, buffer_temp, 139, 8);
 
                 if (streamin.Read(buffer, 0, 8) != 8)
                 {
@@ -324,6 +359,7 @@ namespace LasLibNet
                     return false;
                 }
                 header.z_scale_factor = BitConverter.ToDouble(buffer, 0);
+                ////Array.Copy(buffer, 0, buffer_temp, 147, 8);
 
                 if (streamin.Read(buffer, 0, 8) != 8)
                 {
@@ -331,6 +367,7 @@ namespace LasLibNet
                     return false;
                 }
                 header.x_offset = BitConverter.ToDouble(buffer, 0);
+                ////Array.Copy(buffer, 0, buffer_temp, 155, 8);
 
                 if (streamin.Read(buffer, 0, 8) != 8)
                 {
@@ -338,6 +375,7 @@ namespace LasLibNet
                     return false;
                 }
                 header.y_offset = BitConverter.ToDouble(buffer, 0);
+                ////Array.Copy(buffer, 0, buffer_temp, 163, 8);
 
                 if (streamin.Read(buffer, 0, 8) != 8)
                 {
@@ -345,6 +383,7 @@ namespace LasLibNet
                     return false;
                 }
                 header.z_offset = BitConverter.ToDouble(buffer, 0);
+                ////Array.Copy(buffer, 0, buffer_temp, 171, 8);
 
                 if (streamin.Read(buffer, 0, 8) != 8)
                 {
@@ -352,6 +391,7 @@ namespace LasLibNet
                     return false;
                 }
                 header.max_x = BitConverter.ToDouble(buffer, 0);
+                ////Array.Copy(buffer, 0, buffer_temp, 179, 8);
 
                 if (streamin.Read(buffer, 0, 8) != 8)
                 {
@@ -359,6 +399,7 @@ namespace LasLibNet
                     return false;
                 }
                 header.min_x = BitConverter.ToDouble(buffer, 0);
+                ////Array.Copy(buffer, 0, buffer_temp, 187, 8);
 
                 if (streamin.Read(buffer, 0, 8) != 8)
                 {
@@ -366,6 +407,7 @@ namespace LasLibNet
                     return false;
                 }
                 header.max_y = BitConverter.ToDouble(buffer, 0);
+                ////Array.Copy(buffer, 0, buffer_temp, 195, 8);
 
                 if (streamin.Read(buffer, 0, 8) != 8)
                 {
@@ -373,6 +415,7 @@ namespace LasLibNet
                     return false;
                 }
                 header.min_y = BitConverter.ToDouble(buffer, 0);
+                ////Array.Copy(buffer, 0, buffer_temp, 203, 8);
 
                 if (streamin.Read(buffer, 0, 8) != 8)
                 {
@@ -380,6 +423,7 @@ namespace LasLibNet
                     return false;
                 }
                 header.max_z = BitConverter.ToDouble(buffer, 0);
+                ////Array.Copy(buffer, 0, buffer_temp, 211, 8);
 
                 if (streamin.Read(buffer, 0, 8) != 8)
                 {
@@ -387,6 +431,7 @@ namespace LasLibNet
                     return false;
                 }
                 header.min_z = BitConverter.ToDouble(buffer, 0);
+                ////Array.Copy(buffer, 0, buffer_temp, 219, 8);
 
                 // special handling for LAS 1.3
                 if ((header.version_major == 1) && (header.version_minor >= 3))
@@ -406,6 +451,7 @@ namespace LasLibNet
                         }
                         header.start_of_waveform_data_packet_record = BitConverter.ToUInt64(buffer, 0);
                         header.user_data_in_header_size = (uint)header.header_size - 235;
+                        // //Array.Copy(buffer, 0, buffer_temp, 227, 8);
                     }
                 }
                 else
@@ -430,6 +476,7 @@ namespace LasLibNet
                             return false;
                         }
                         header.start_of_first_extended_variable_length_record = BitConverter.ToUInt64(buffer, 0);
+                        // //Array.Copy(buffer, 0, buffer_temp, 227, 8);
 
                         if (streamin.Read(buffer, 0, 4) != 4)
                         {
@@ -437,6 +484,7 @@ namespace LasLibNet
                             return false;
                         }
                         header.number_of_extended_variable_length_records = BitConverter.ToUInt32(buffer, 0);
+                        ////Array.Copy(buffer, 0, buffer_temp, 235, 4);
 
                         if (streamin.Read(buffer, 0, 8) != 8)
                         {
@@ -444,6 +492,7 @@ namespace LasLibNet
                             return false;
                         }
                         header.extended_number_of_point_records = BitConverter.ToUInt64(buffer, 0);
+                        ////Array.Copy(buffer, 0, buffer_temp, 239, 8);
 
                         for (int i = 0; i < 15; i++)
                         {
@@ -453,13 +502,14 @@ namespace LasLibNet
                                 return false;
                             }
                             header.extended_number_of_points_by_return[i] = BitConverter.ToUInt64(buffer, 0);
+                            ////Array.Copy(buffer, 0, buffer_temp, 247+i*8, 8);
                         }
                         header.user_data_in_header_size = (uint)header.header_size - 375;
                     }
                 }
 
                 // load any number of user-defined bytes that might have been added to the header
-                if (header.user_data_in_header_size != 0)
+                if (header.user_data_in_header_size > 0)
                 {
                     header.user_data_in_header = new byte[header.user_data_in_header_size];
 
@@ -468,6 +518,7 @@ namespace LasLibNet
                         error = string.Format("Reading {0} bytes of data into header.user_data_in_header failed", header.user_data_in_header_size);
                         return false;
                     }
+
                 }
                 #endregion
 
@@ -718,82 +769,13 @@ namespace LasLibNet
                     }
                 }
 
-                // remove extra bits in point data type
-                if ((header.point_data_format & 128) != 0 || (header.point_data_format & 64) != 0)
-                {
-                    if (lasFile == null)
-                    {
-                        error = "This file was compressed with an experimental version of lasFile. ";
-                        return false;
-                    }
-                    header.point_data_format &= 127;
-                }
+                #region Read all header bytes before the data.
+                this.ext_header = new byte[header.offset_to_point_data];
+                streamin.Position = 0;
+                streamin.Read(this.ext_header, 0, (int)header.offset_to_point_data);
+                #endregion
 
-                // check if file is compressed
-                if (lasFile != null)
-                {
-                    // yes. check the compressor state
-                    is_compressed = true;
-                    if (!lasFile.check())
-                    {
-                        error = string.Format("{0} upgrade to the latest release of LAStools (with LASzip) or contact "
-                            , lasFile.get_error());
-                        return false;
-                    }
-                }
-                else
-                {
-                    // no. setup an un-compressed read
-                    is_compressed = false;
-                    lasFile = new LasFile();
-                    if (!lasFile.setup(header.point_data_format, header.point_data_record_length, LasFile.COMPRESSOR_NONE))
-                    {
-                        error = string.Format("Invalid combination of point_data_format {0} and point_data_record_length {1}"
-                            , header.point_data_format, header.point_data_record_length);
-                        return false;
-                    }
-                }
-
-                // create point's item pointers
-                for (int i = 0; i < lasFile.num_items; i++)
-                {
-                    switch (lasFile.items[i].type)
-                    {
-                        case LasItem.Type.POINT14:
-                        case LasItem.Type.POINT10:
-                        case LasItem.Type.GPSTIME11:
-                        case LasItem.Type.RGBNIR14:
-                        case LasItem.Type.RGB12:
-                        case LasItem.Type.WAVEPACKET13:
-                            break;
-                        case LasItem.Type.BYTE:
-                            point.num_extra_bytes = lasFile.items[i].size;
-                            point.extra_bytes = new byte[point.num_extra_bytes];
-                            break;
-                        default:
-                            error = string.Format("Unknown LasItem type {0}", lasFile.items[i].type);
-                            return false;
-                    }
-                }
-
-                // create the point reader
-                reader = new LasPointReader();
-                if (!reader.setup(lasFile.num_items, lasFile.items, lasFile))
-                {
-                    error = "Setup of LASreadPoint failed";
-                    return false;
-                }
-
-                if (!reader.init(streamin))
-                {
-                    error = "Init of LASreadPoint failed";
-                    return false;
-                }
-
-                //Sleeping to wait for reader ok.
-                //System.Threading.Thread.Sleep(200);
-
-                lasFile = null;
+                this.SetPointReader();
 
                 // set the point number and point count
                 npoints = header.number_of_point_records;
@@ -811,6 +793,38 @@ namespace LasLibNet
 
         #endregion
 
+        /// <summary>
+        /// Create point reader by the version and point data format.
+        /// </summary>
+        private void SetPointReader()
+        {
+            if (this.header.version_major == 1 && this.header.version_minor == 0)
+            {
+                if (this.header.point_data_format == 0)
+                    this.reader = new LasPoint_1_0_Format0_Reader(streamin);
+                else
+                    this.reader = new LasPoint_1_0_Format1_Reader(streamin);
+            }
+            else if (this.header.version_major == 1 && this.header.version_minor == 1)
+            {
+                if (this.header.point_data_format == 0)
+                    this.reader = new LasPoint_1_1_Format0_Reader(streamin);
+                else if (this.header.point_data_format == 1)
+                    this.reader = new LasPoint_1_1_Format1_Reader(streamin);
+            }
+            else if (this.header.version_major == 1 && this.header.version_minor == 2)
+            {
+                if (this.header.point_data_format == 0)
+                    this.reader = new LasPoint_1_2_Format0_Reader(streamin);
+                else if (this.header.point_data_format == 1)
+                    this.reader = new LasPoint_1_2_Format1_Reader(streamin);
+                else if (this.header.point_data_format == 2)
+                    this.reader = new LasPoint_1_2_Format2_Reader(streamin);
+                else if (this.header.point_data_format == 3)
+                    this.reader = new LasPoint_1_2_Format3_Reader(streamin);
+            }
+        }
+
         #region Close the reader & Clean
         /// <summary>
         /// Close the las file reader.
@@ -825,13 +839,7 @@ namespace LasLibNet
             }
 
             try
-            {
-                if (!reader.done())
-                {
-                    error = "done of LASreadPoint failed";
-                    return false;
-                }
-
+            { 
                 reader = null;
                 if (!leaveStreamInOpen) streamin.Close();
                 streamin = null;
@@ -945,7 +953,7 @@ namespace LasLibNet
                     , LasFile.VERSION_MINOR
                     , LasFile.VERSION_REVISION
                     , LasFile.VERSION_BUILD_DATE));
-                Array.Copy(generatingSoftware, header.generating_software, Math.Min(generatingSoftware.Length, 32));
+                //Array.Copy(generatingSoftware, header.generating_software, Math.Min(generatingSoftware.Length, 32));
                 header.version_major = 1;
                 header.version_minor = 2;
                 header.header_size = 227;
@@ -971,13 +979,16 @@ namespace LasLibNet
         public bool SeekPoint(long index)
         {
             try
-            {
-                // seek to the point
-                if (!reader.seek((uint)p_sequence, (uint)index))
+            { 
+                if (index>this.npoints)
                 {
                     error = string.Format("Seeking from index {0} to index {1} for file with {2} points failed", p_sequence, index, npoints);
                     return false;
                 }
+                // seek to the point
+                streamin.Seek(this.header.offset_to_point_data+index*this.reader.GetPointSize()
+                    , SeekOrigin.Begin);
+               
                 p_sequence = index;
             }
             catch
@@ -994,7 +1005,7 @@ namespace LasLibNet
         /// Read a next point, and set the data to the variable point.
         /// </summary>
         /// <returns></returns>
-        public LasPoint ReadPoint()
+        public Object ReadPoint()
         {
             if (reader == null)
             {
@@ -1005,7 +1016,7 @@ namespace LasLibNet
             try
             {
                 // read the point
-                if (!reader.read(point))
+                if (!reader.Read())
                 {
                     error = string.Format("Reading point with index {0} of {1} total points failed", p_sequence, npoints);
                     return null;
@@ -1020,7 +1031,7 @@ namespace LasLibNet
             }
 
             error = null;
-            return point;
+            return reader.GetPoint();
         }
 
     }
