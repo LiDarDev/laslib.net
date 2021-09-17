@@ -775,6 +775,7 @@ namespace LasLibNet
                 streamin.Read(this.ext_header, 0, (int)header.offset_to_point_data);
                 #endregion
 
+                //Build point reader
                 this.SetPointReader();
 
                 // set the point number and point count

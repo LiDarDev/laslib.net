@@ -120,13 +120,14 @@ namespace LasLib.net.Test
             for (int pointIndex = 0; pointIndex < this.lasHeader.number_of_point_records; pointIndex++)
             {
                 // Read the point
-                LasPoint_1_2_Format2 p =(LasPoint_1_2_Format2) lasReader.ReadPoint();
+                LasPoint_1_2_Format3 p =(LasPoint_1_2_Format3) lasReader.ReadPoint();
                 if (p == null)
                 {
                     MessageBox.Show(lasReader.Error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     break;
                 }
                 DataRow row = dt.NewRow();
+                row[colId] = (pointIndex+1).ToString();
                 row[colX] = p.GeoX.ToString("f2");
                 row[colY] = p.GeoY.ToString("f2");
                 row[colZ] = p.GeoZ.ToString("f2");
