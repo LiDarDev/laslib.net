@@ -130,42 +130,5 @@ namespace LasLibNet.Model
         protected sbyte _scan_angle_rank;
         public sbyte scan_angle_rank { get => _scan_angle_rank; set => _scan_angle_rank = value; }
 
-<<<<<<< HEAD
-=======
-
-        /// <summary>
-        /// Check if two points are same.
-        /// </summary>
-        /// <param name="p"></param>
-        /// <returns></returns>
-        public bool IsSame(LasPointBase p)
-        {
-            if (x != p.X) return false;
-            if (y != p.Y) return false;
-            if (z != p.Z) return false;
-
-            if (_intensity != p.intensity) return false;
-            if (_flags != p.flags) return false;
-            if (_classification != p.classification) return false;
-            if (_scan_angle_rank != p.scan_angle_rank) return false;
-
-            return true;
-        }
-
-        /// <summary>
-        /// Clone the p's attributes to this class instance.
-        /// </summary>
-        /// <param name="p"></param>
-        public void Clone(LasPointBase p)
-        {
-            x = p.X; 
-            y = p.Y; 
-            z = p.Z;
-            _intensity = p.intensity;
-            _flags = p.flags;
-            _classification = p.classification;
-            _scan_angle_rank = p.scan_angle_rank;
-        }
->>>>>>> 9ef5d2225b60abb57dc40befb324256f99f13d09
     }
 }
