@@ -33,17 +33,41 @@ namespace LasLibNet.Model
     /// <summary>
     /// LAS1.2 Point model for format 2. 
     /// </summary>
+<<<<<<< HEAD
     public class LasPoint_1_3_Format2 : LasPoint_1_2_Format2
     {
       
+=======
+    public class LasPoint_1_3_Format2 : LasPoint_1_2_Format0
+    {
+        protected ushort blue;
+        protected ushort red;
+        protected ushort green;
+
+        public ushort Red { get => red; set => red = value; }
+        public ushort Green { get => green; set => green = value; }
+        public ushort Blue { get => blue; set => blue = value; }
+>>>>>>> 9ef5d2225b60abb57dc40befb324256f99f13d09
     }
 
     /// <summary>
     /// LAS1.2 Point model for format 3. 
     /// </summary>
+<<<<<<< HEAD
     public class LasPoint_1_3_Format3 : LasPoint_1_2_Format3
     {
        
+=======
+    public class LasPoint_1_3_Format3 : LasPoint_1_3_Format1
+    {
+        protected ushort blue;
+        protected ushort red;
+        protected ushort green;
+
+        public ushort Red { get => red; set => red = value; }
+        public ushort Green { get => green; set => green = value; }
+        public ushort Blue { get => blue; set => blue = value; }
+>>>>>>> 9ef5d2225b60abb57dc40befb324256f99f13d09
     }
 
     /// <summary>

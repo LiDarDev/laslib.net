@@ -27,9 +27,15 @@ namespace LasLibNet.Reader
         /// <summary>
         /// Current point
         /// </summary>
+<<<<<<< HEAD
         protected LasPoint point;
 
         public LasPoint GetPoint()
+=======
+        protected Object point;
+
+        public Object GetPoint()
+>>>>>>> 9ef5d2225b60abb57dc40befb324256f99f13d09
         {
             return this.point;
         }
@@ -46,11 +52,39 @@ namespace LasLibNet.Reader
             this.instream = instream;
         }
 
+<<<<<<< HEAD
         protected string error;
 
         /// <summary>
         /// 错误信息
         /// </summary>
         public string Error { get => error; }
+=======
+        //byte[] buffer = new byte[17];
+
+        ///// <summary>
+        ///// 读取点基础数据
+        ///// </summary>
+        ///// <returns></returns>
+        //protected unsafe LasPointBase Read()
+        //{
+            
+        //    if (instream.Read(buffer, 0, 17) != 17) throw new EndOfStreamException();
+
+        //    fixed (byte* pBuffer = buffer)
+        //    {
+        //        point_base* p = (point_base*)pBuffer;
+        //        this.pointBase.X = p->x;
+        //        this.pointBase.Y = p->y;
+        //        this.pointBase.Z = p->z;
+        //        this.pointBase.intensity = p->intensity;
+        //        this.pointBase.flags = p->flags;
+        //        this.pointBase.classification = p->classification;
+        //        this.pointBase.scan_angle_rank = p->scan_angle_rank;
+        //    }
+
+        //    return pointBase;
+        //}
+>>>>>>> 9ef5d2225b60abb57dc40befb324256f99f13d09
     }
 }

@@ -2,7 +2,10 @@
 using LasLibNet.Model;
 using System;
 using System.Collections.Generic;
+<<<<<<< HEAD
 using System.Diagnostics;
+=======
+>>>>>>> 9ef5d2225b60abb57dc40befb324256f99f13d09
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -19,6 +22,7 @@ namespace LasLibNet.Reader
             this.instream = instream;
         }
 
+<<<<<<< HEAD
         public unsafe LasPoint Read()
         {
             byte[] buffer = new byte[20];
@@ -29,10 +33,21 @@ namespace LasLibNet.Reader
             }
 
             point = new LasPoint();
+=======
+        LasPoint_1_2_Format0 laspoint;
+
+        public unsafe bool Read()
+        {
+            byte[] buffer = new byte[20];
+            if (instream.Read(buffer, 0, 20) != 20) throw new EndOfStreamException();
+
+            laspoint = new LasPoint_1_2_Format0();
+>>>>>>> 9ef5d2225b60abb57dc40befb324256f99f13d09
 
             fixed (byte* pBuffer = buffer)
             {
                 point_1_2_format0* p = (point_1_2_format0*)pBuffer;
+<<<<<<< HEAD
                 point.X = p->x;
                 point.Y = p->y;
                 point.Z = p->z;
@@ -44,6 +59,20 @@ namespace LasLibNet.Reader
                 point.point_source_ID = p->point_source_ID;
             }
             return this.point;
+=======
+                laspoint.X = p->x;
+                laspoint.Y = p->y;
+                laspoint.Z = p->z;
+                laspoint.intensity = p->intensity;
+                laspoint.flags = p->flags;
+                laspoint.classification = p->classification;
+                laspoint.scan_angle_rank = p->scan_angle_rank;
+                laspoint.user_data = p->user_data;
+                laspoint.point_source_ID = p->point_source_ID;
+            }
+            this.point = laspoint;
+            return true;
+>>>>>>> 9ef5d2225b60abb57dc40befb324256f99f13d09
         }
 
         /// <summary>
@@ -65,6 +94,7 @@ namespace LasLibNet.Reader
             this.instream = instream;
         }
 
+<<<<<<< HEAD
         public unsafe LasPoint Read()
         {
             byte[] buffer = new byte[28];
@@ -75,10 +105,19 @@ namespace LasLibNet.Reader
             }
 
             point = new LasPoint();
+=======
+        public unsafe bool Read()
+        {
+            byte[] buffer = new byte[28];
+            if (instream.Read(buffer, 0, 28) != 28) throw new EndOfStreamException();
+
+            LasPoint_1_2_Format1 laspoint = new LasPoint_1_2_Format1();
+>>>>>>> 9ef5d2225b60abb57dc40befb324256f99f13d09
 
             fixed (byte* pBuffer = buffer)
             {
                 point_1_2_format1* p = (point_1_2_format1*)pBuffer;
+<<<<<<< HEAD
                 point.X = p->x;
                 point.Y = p->y;
                 point.Z = p->z;
@@ -92,6 +131,21 @@ namespace LasLibNet.Reader
             }
 
             return this.point;
+=======
+                laspoint.X = p->x;
+                laspoint.Y = p->y;
+                laspoint.Z = p->z;
+                laspoint.intensity = p->intensity;
+                laspoint.flags = p->flags;
+                laspoint.classification = p->classification;
+                laspoint.scan_angle_rank = p->scan_angle_rank;
+                laspoint.user_data = p->user_data;
+                laspoint.point_source_ID = p->point_source_ID;
+                laspoint.gps_time = p->gps_time;
+            }
+            this.point = laspoint;
+            return true;
+>>>>>>> 9ef5d2225b60abb57dc40befb324256f99f13d09
         }
 
         /// <summary>
@@ -113,6 +167,7 @@ namespace LasLibNet.Reader
             this.instream = instream;
         }
 
+<<<<<<< HEAD
         public unsafe LasPoint Read()
         {
             byte[] buffer = new byte[26];
@@ -123,10 +178,19 @@ namespace LasLibNet.Reader
             }
 
             point = new LasPoint();
+=======
+        public unsafe bool Read()
+        {
+            byte[] buffer = new byte[26];
+            if (instream.Read(buffer, 0, 26) != 26) throw new EndOfStreamException();
+
+            LasPoint_1_2_Format2 laspoint = new LasPoint_1_2_Format2();
+>>>>>>> 9ef5d2225b60abb57dc40befb324256f99f13d09
 
             fixed (byte* pBuffer = buffer)
             {
                 point_1_2_format2* p = (point_1_2_format2*)pBuffer;
+<<<<<<< HEAD
                 point.X = p->x;
                 point.Y = p->y;
                 point.Z = p->z;
@@ -142,6 +206,23 @@ namespace LasLibNet.Reader
             }
 
             return this.point;
+=======
+                laspoint.X = p->x;
+                laspoint.Y = p->y;
+                laspoint.Z = p->z;
+                laspoint.intensity = p->intensity;
+                laspoint.flags = p->flags;
+                laspoint.classification = p->classification;
+                laspoint.scan_angle_rank = p->scan_angle_rank;
+                laspoint.user_data = p->user_data;
+                laspoint.point_source_ID = p->point_source_ID;
+                laspoint.Red = p->red;
+                laspoint.Green = p->green;
+                laspoint.Blue = p->blue;
+            }
+            this.point = laspoint;
+            return true;
+>>>>>>> 9ef5d2225b60abb57dc40befb324256f99f13d09
         }
 
         /// <summary>
@@ -164,6 +245,7 @@ namespace LasLibNet.Reader
             this.instream = instream;
         }
 
+<<<<<<< HEAD
         public unsafe LasPoint Read()
         {
             byte[] buffer = new byte[34];
@@ -178,10 +260,19 @@ namespace LasLibNet.Reader
             //#endif 
 
             point = new LasPoint();
+=======
+        public unsafe bool Read()
+        {
+            byte[] buffer = new byte[34];
+            if (instream.Read(buffer, 0, 34) != 34) throw new EndOfStreamException();
+
+            LasPoint_1_2_Format3 laspoint = new LasPoint_1_2_Format3();
+>>>>>>> 9ef5d2225b60abb57dc40befb324256f99f13d09
 
             fixed (byte* pBuffer = buffer)
             {
                 point_1_2_format3* p = (point_1_2_format3*)pBuffer;
+<<<<<<< HEAD
                 point.X = p->x;
                 point.Y = p->y;
                 point.Z = p->z;
@@ -246,6 +337,24 @@ namespace LasLibNet.Reader
 
 
             return point;
+=======
+                laspoint.X = p->x;
+                laspoint.Y = p->y;
+                laspoint.Z = p->z;
+                laspoint.intensity = p->intensity;
+                laspoint.flags = p->flags;
+                laspoint.classification = p->classification;
+                laspoint.scan_angle_rank = p->scan_angle_rank;
+                laspoint.user_data = p->user_data;
+                laspoint.point_source_ID = p->point_source_ID;
+                laspoint.gps_time = p->gps_time;
+                laspoint.Red = p->red;
+                laspoint.Green = p->green;
+                laspoint.Blue = p->blue; 
+            }
+            this.point = laspoint;
+            return true;
+>>>>>>> 9ef5d2225b60abb57dc40befb324256f99f13d09
         }
 
         /// <summary>
@@ -254,7 +363,11 @@ namespace LasLibNet.Reader
         /// <returns></returns>
         public int GetPointSize()
         {
+<<<<<<< HEAD
             return 34;
+=======
+            return 44;
+>>>>>>> 9ef5d2225b60abb57dc40befb324256f99f13d09
         }
 
     }
