@@ -26,6 +26,8 @@
 //
 //===============================================================================
 
+using LasLibNet.Model;
+
 namespace LasLibNet.Abstract
 {
 	public abstract class LasItemWriter

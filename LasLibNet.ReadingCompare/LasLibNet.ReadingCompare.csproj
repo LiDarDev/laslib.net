@@ -4,16 +4,17 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{120DA85D-33A0-4F55-8DFA-A07FA5C7CD42}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>LasLibNet</RootNamespace>
-    <AssemblyName>LasLibNet</AssemblyName>
+    <ProjectGuid>{187B3CB0-B72E-4DBC-B02D-BB89686B14BE}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>LasLibNet.ReadingCompare</RootNamespace>
+    <AssemblyName>LasLibNet.ReadingCompare</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -21,9 +22,9 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -42,38 +43,17 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Abstract\ILasPointReader.cs" />
-    <Compile Include="Abstract\ILasPointWriter.cs" />
-    <Compile Include="Abstract\LasItemWriter.cs" />
-    <Compile Include="Abstract\LasRawItemWriter.cs" />
-    <Compile Include="Abstract\LasCompressedItemWriter.cs" />
-    <Compile Include="LasFile.cs" />
-    <Compile Include="Model\LasHeader.cs" />
-    <Compile Include="Model\LasPoint.cs" />
-    <Compile Include="Reader\LasReader.cs" />
-    <Compile Include="Las_vlr.cs" />
-    <Compile Include="Model\LasGeokey.cs" />
-    <Compile Include="Model\LasPointBase.cs" />
-    <Compile Include="Model\LasPoint_1_0.cs" />
-    <Compile Include="Model\LasPoint_1_1.cs" />
-    <Compile Include="Model\LasPoint_1_2.cs" />
-    <Compile Include="Model\LasPoint_1_3.cs" />
-    <Compile Include="Model\MyStruct.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Reader\LasPointReaderBase.cs" />
-    <Compile Include="Reader\LasPoint_1_0_Reader.cs" />
-    <Compile Include="Reader\LasPoint_1_1_Reader.cs" />
-    <Compile Include="Reader\LasPoint_1_2_Reader.cs" />
-    <Compile Include="Utils\MyDefs.cs" />
-    <Compile Include="Utils\PointSize.cs" />
-    <Compile Include="Utils\Tools.cs" />
-    <Compile Include="Writer\LasPointWriterBase.cs" />
-    <Compile Include="Writer\LasPoint_1_0_Writer.cs" />
-    <Compile Include="Writer\LasPoint_1_1_Writer.cs" />
-    <Compile Include="Writer\LasPoint_1_2_Writer.cs" />
-    <Compile Include="Writer\LasPoint_1_3_Writer.cs" />
-    <Compile Include="Writer\LasWriter.cs" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Laslib.net\LasLibNet.csproj">
+      <Project>{120da85d-33a0-4f55-8dfa-a07fa5c7cd42}</Project>
+      <Name>LasLibNet</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

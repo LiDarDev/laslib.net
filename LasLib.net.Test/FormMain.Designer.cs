@@ -33,6 +33,10 @@
             this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton2 = new System.Windows.Forms.ToolStripButton();
             this.toolStripButton3 = new System.Windows.Forms.ToolStripButton();
+            this.toolStripButton4 = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.tsbCreateLas = new System.Windows.Forms.ToolStripButton();
+            this.tsbSaveAs = new System.Windows.Forms.ToolStripButton();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.tslMain = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel3 = new System.Windows.Forms.ToolStripStatusLabel();
@@ -46,10 +50,6 @@
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.dgvData = new System.Windows.Forms.DataGridView();
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
-            this.toolStripButton4 = new System.Windows.Forms.ToolStripButton();
-            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.tsbCreateLas = new System.Windows.Forms.ToolStripButton();
-            this.tsbSaveAs = new System.Windows.Forms.ToolStripButton();
             this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.toolStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
@@ -105,6 +105,38 @@
             this.toolStripButton3.Size = new System.Drawing.Size(101, 22);
             this.toolStripButton3.Text = "Display Data";
             this.toolStripButton3.Click += new System.EventHandler(this.toolStripButton3_Click_1);
+            // 
+            // toolStripButton4
+            // 
+            this.toolStripButton4.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton4.Image")));
+            this.toolStripButton4.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.toolStripButton4.Name = "toolStripButton4";
+            this.toolStripButton4.Size = new System.Drawing.Size(106, 22);
+            this.toolStripButton4.Text = "Close Reader";
+            this.toolStripButton4.Click += new System.EventHandler(this.toolStripButton4_Click);
+            // 
+            // toolStripSeparator1
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(6, 25);
+            // 
+            // tsbCreateLas
+            // 
+            this.tsbCreateLas.Image = ((System.Drawing.Image)(resources.GetObject("tsbCreateLas.Image")));
+            this.tsbCreateLas.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbCreateLas.Name = "tsbCreateLas";
+            this.tsbCreateLas.Size = new System.Drawing.Size(112, 22);
+            this.tsbCreateLas.Text = "Create Las File";
+            this.tsbCreateLas.Click += new System.EventHandler(this.tsbCreateLas_Click);
+            // 
+            // tsbSaveAs
+            // 
+            this.tsbSaveAs.Image = ((System.Drawing.Image)(resources.GetObject("tsbSaveAs.Image")));
+            this.tsbSaveAs.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbSaveAs.Name = "tsbSaveAs";
+            this.tsbSaveAs.Size = new System.Drawing.Size(80, 22);
+            this.tsbSaveAs.Text = "Clone To";
+            this.tsbSaveAs.Click += new System.EventHandler(this.tsbSaveAs_Click);
             // 
             // statusStrip1
             // 
@@ -241,41 +273,8 @@
             // openFileDialog
             // 
             this.openFileDialog.DefaultExt = "las";
-            this.openFileDialog.FileName = "Select a Las File";
-            this.openFileDialog.Filter = "Las file|*.las|All Files|*.*";
+            this.openFileDialog.Filter = "Las file|*.las|Laz file|*.laz|All Files|*.*";
             this.openFileDialog.Title = "Open a Las File";
-            // 
-            // toolStripButton4
-            // 
-            this.toolStripButton4.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton4.Image")));
-            this.toolStripButton4.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.toolStripButton4.Name = "toolStripButton4";
-            this.toolStripButton4.Size = new System.Drawing.Size(106, 22);
-            this.toolStripButton4.Text = "Close Reader";
-            this.toolStripButton4.Click += new System.EventHandler(this.toolStripButton4_Click);
-            // 
-            // toolStripSeparator1
-            // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(6, 25);
-            // 
-            // tsbCreateLas
-            // 
-            this.tsbCreateLas.Image = ((System.Drawing.Image)(resources.GetObject("tsbCreateLas.Image")));
-            this.tsbCreateLas.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbCreateLas.Name = "tsbCreateLas";
-            this.tsbCreateLas.Size = new System.Drawing.Size(112, 22);
-            this.tsbCreateLas.Text = "Create Las File";
-            this.tsbCreateLas.Click += new System.EventHandler(this.tsbCreateLas_Click);
-            // 
-            // tsbSaveAs
-            // 
-            this.tsbSaveAs.Image = ((System.Drawing.Image)(resources.GetObject("tsbSaveAs.Image")));
-            this.tsbSaveAs.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.tsbSaveAs.Name = "tsbSaveAs";
-            this.tsbSaveAs.Size = new System.Drawing.Size(80, 22);
-            this.tsbSaveAs.Text = "Clone To";
-            this.tsbSaveAs.Click += new System.EventHandler(this.tsbSaveAs_Click);
             // 
             // saveFileDialog
             // 

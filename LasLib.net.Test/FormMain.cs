@@ -1,6 +1,7 @@
 ﻿using LasLibNet;
 using LasLibNet.Model;
 using LasLibNet.Utils;
+using LasLibNet.Writer;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -42,7 +43,7 @@ namespace LasLib.net.Test
             {
                 this.tslFile.Text = this.openFileDialog.FileName;
                 this.lasFile = this.tslFile.Text;
-                if (lasReader.OpenReader(this.lasFile, ref this.isCompressed) == false)
+                if (lasReader.OpenReader(this.lasFile) == false)
                 {
                     MessageBox.Show(lasReader.Error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                     return;
@@ -120,7 +121,7 @@ namespace LasLib.net.Test
             for (int pointIndex = 0; pointIndex < this.lasHeader.number_of_point_records; pointIndex++)
             {
                 // Read the point
-                LasPoint_1_2_Format3 p =(LasPoint_1_2_Format3) lasReader.ReadPoint();
+                LasPoint p = lasReader.ReadPoint();
                 if (p == null)
                 {
                     MessageBox.Show(lasReader.Error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -132,9 +133,9 @@ namespace LasLib.net.Test
                 row[colY] = p.GeoY.ToString("f2");
                 row[colZ] = p.GeoZ.ToString("f2");
                 row[colI] = p.intensity.ToString();
-                row[colR] = p.Red.ToString();
-                row[colG] = p.Green.ToString();
-                row[colB] = p.Blue.ToString();
+                row[colR] = p.red.ToString();
+                row[colG] = p.green.ToString();
+                row[colB] = p.blue.ToString();
                 dt.Rows.Add(row);
 
             }
@@ -170,6 +171,7 @@ namespace LasLib.net.Test
         /// <param name="e"></param>
         private void tsbCreateLas_Click(object sender, EventArgs e)
         {
+            /*
             if (this.saveFileDialog.ShowDialog() != DialogResult.OK)
             {
                 MessageBox.Show("You hav't choose a las file!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
@@ -192,7 +194,7 @@ namespace LasLib.net.Test
             point.Z = 200.0;
             points.Add(point);
 
-            LasWriter lazWriter = new LasWriter();
+            //LasWriter lazWriter = new LasWriter();
             var err = lazWriter.Init();
             if (err == true)
             {
@@ -208,7 +210,7 @@ namespace LasLib.net.Test
                 lazWriter.Header.max_z = points[1].Z;
 
                 // Open the writer and test for errors
-                err = lazWriter.OpenWriter(FileName, true);
+                //err = lazWriter.OpenWriter(FileName, true);
                 if (err)
                 {
                     double[] coordArray = new double[3];
@@ -242,6 +244,7 @@ namespace LasLib.net.Test
             else
                 MessageBox.Show("Write las file succesfully!", "Congregation", MessageBoxButtons.OK, MessageBoxIcon.Information);
             // --- Upon completion, file should be 389 bytes
+            */
         }
 
         /// <summary>
@@ -251,6 +254,7 @@ namespace LasLib.net.Test
         /// <param name="e"></param>
         private void tsbSaveAs_Click(object sender, EventArgs e)
         {
+
             if (this.saveFileDialog.ShowDialog() != DialogResult.OK)
             {
                 MessageBox.Show("You HAVE TO choose a las file!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
@@ -259,10 +263,9 @@ namespace LasLib.net.Test
 
             string FileName = this.saveFileDialog.FileName;
 
-            LasWriter lazWriter = new LasWriter();
-            lazWriter.SetHeader(lasHeader);
+            LasWriter lazWriter = new LasWriter(this.lasHeader);
 
-            bool result = lazWriter.OpenWriter(FileName, true);
+            bool result = lazWriter.OpenWriter(FileName);
             if (!result)
             {
                 MessageBox.Show(lazWriter.Error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -270,32 +273,43 @@ namespace LasLib.net.Test
                 lazWriter.CloseWriter();
                 return;
             }
+            byte[] header_info = lasReader.GetExtendHeader();
+            if (header_info == null)
+            {
+                MessageBox.Show(lazWriter.Error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);                
+                lazWriter.CloseWriter();
+                return;
+            }
 
+            if (lazWriter.WriteHeader(header_info) == false)
+            {
+                MessageBox.Show(lazWriter.Error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                lazWriter.CloseWriter();
+                return;
+            }
 
-            //lasReader.SeekPoint(0);
-            //// Loop through number of points indicated
-            //for (int pointIndex = 0; pointIndex < this.lasHeader.number_of_point_records; pointIndex++)
-            //{
-            //    // Read the point
-            //    LasPoint p = lasReader.ReadPoint();
-            //    if (p == null)
-            //    {
-            //        MessageBox.Show(lasReader.Error, "Read Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            //        Debug.WriteLine(" #Read point failed : " + lasReader.Error);
-            //        break;
-            //    }
-            //    // display the member attributes of the point.
-            //    Tools.DisplayClassProperties<LasPoint>(p);
+            // Loop through number of points indicated
+            for (int pointIndex = 0; pointIndex < this.lasHeader.number_of_point_records; pointIndex++)
+            {
+                // Read the point
+                LasPoint p = lasReader.ReadPoint();
+                if (p == null)
+                {
+                    MessageBox.Show(lasReader.Error, "Read Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    Debug.WriteLine(" #Read point failed : " + lasReader.Error);
+                    break;
+                }
+               
 
-            //    result = lazWriter.WritePoint(p);
-            //    if (!result)
-            //    {
-            //        MessageBox.Show(lazWriter.Error, "Write failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            //        Debug.WriteLine("  #Write point failed : " + lazWriter.Error);
-            //        break;
-            //    }
-            //}
-                        
+                result = lazWriter.WritePoint(p);
+                if (!result)
+                {
+                    MessageBox.Show(lazWriter.Error, "Write failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    Debug.WriteLine("  #Write point failed : " + lazWriter.Error);
+                    break;
+                }
+            }
+
             lazWriter.CloseWriter();
 
             if (!result)
@@ -305,6 +319,7 @@ namespace LasLib.net.Test
             }
             else
                 MessageBox.Show("Save the data succesfully!", "Info.", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        
         }
 
     }
