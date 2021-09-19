@@ -64,14 +64,16 @@ namespace LasLib.net.Test
 
             #region 创建数据行
 
-            this.dgvInfo.Rows.Add("Version", lasHeader.version_major + "." + lasHeader.version_minor);
-            this.dgvInfo.Rows.Add("Header Size", lasHeader.header_size.ToString());
-            this.dgvInfo.Rows.Add("Point Count", lasHeader.number_of_point_records.ToString());
-            this.dgvInfo.Rows.Add("Point data format", lasHeader.point_data_format.ToString());
-            this.dgvInfo.Rows.Add("X Max", lasHeader.max_x.ToString("f4"));
-            this.dgvInfo.Rows.Add("X Min", lasHeader.min_x.ToString("f4"));
-            this.dgvInfo.Rows.Add("Y Max", lasHeader.max_y.ToString("f4"));
-            this.dgvInfo.Rows.Add("Y Min", lasHeader.min_y.ToString("f4"));
+            Tools.DisplayClassProperties<LasHeader>(lasHeader, this.dgvInfo);
+
+            //this.dgvInfo.Rows.Add("Version", lasHeader.version_major + "." + lasHeader.version_minor);
+            //this.dgvInfo.Rows.Add("Header Size", lasHeader.header_size.ToString());
+            //this.dgvInfo.Rows.Add("Point Count", lasHeader.number_of_point_records.ToString());
+            //this.dgvInfo.Rows.Add("Point data format", lasHeader.point_data_format.ToString());
+            //this.dgvInfo.Rows.Add("X Max", lasHeader.max_x.ToString("f4"));
+            //this.dgvInfo.Rows.Add("X Min", lasHeader.min_x.ToString("f4"));
+            //this.dgvInfo.Rows.Add("Y Max", lasHeader.max_y.ToString("f4"));
+            //this.dgvInfo.Rows.Add("Y Min", lasHeader.min_y.ToString("f4"));
             #endregion
 
             Tools.DisplayClassProperties<LasHeader>(lasHeader);
@@ -171,6 +173,9 @@ namespace LasLib.net.Test
         /// <param name="e"></param>
         private void tsbCreateLas_Click(object sender, EventArgs e)
         {
+            LasHeader header = this.CreateHeader();
+
+
             /*
             if (this.saveFileDialog.ShowDialog() != DialogResult.OK)
             {
@@ -245,6 +250,52 @@ namespace LasLib.net.Test
                 MessageBox.Show("Write las file succesfully!", "Congregation", MessageBoxButtons.OK, MessageBoxIcon.Information);
             // --- Upon completion, file should be 389 bytes
             */
+        }
+
+        private LasHeader CreateHeader()
+        {
+            LasHeader header = new LasHeader();
+
+            header.file_source_ID = 0;
+            header.global_encoding = 0;
+            header.project_ID_GUID_data_1 = 0;
+            header.project_ID_GUID_data_2 = 0;
+            header.project_ID_GUID_data_3 = 0;
+            header.project_ID_GUID_data_4 = new byte[4];
+            header.version_major = 01;
+            header.version_minor = 02; ;
+            header.system_identifier = Encoding.UTF8.GetBytes("CSU LasLibNet R1.0, 20210918") ;
+            header.generating_software = Encoding.UTF8.GetBytes("CSU LasLibNet R1.0, 20210918");
+            header.file_creation_day = 171;
+            header.file_creation_year = 2021;
+            header.header_size = 227;
+            header.offset_to_point_data = 227;
+            header.number_of_variable_length_records = 0;
+            header.point_data_format = 03;
+            header.point_data_record_length = 34;
+            header.number_of_point_records = 0;
+            uint[] uints = { 0, 0, 0, 0, 0 };
+            header.number_of_points_by_return =uints ;
+            header.x_scale_factor = 0.001000;
+            header.y_scale_factor = 0.001000;
+            header.z_scale_factor = 0.001000;
+            header.x_offset = 0;
+            header.y_offset = 0;
+            header.z_offset = 0;
+            header.max_x = 0;
+            header.min_x = 0;
+            header.max_y = 0;
+            header.min_y = 0;
+            header.max_z = 0;
+            header.min_z = 0;
+            header.start_of_waveform_data_packet_record = 0;
+            header.start_of_first_extended_variable_length_record = 0;
+            header.number_of_extended_variable_length_records = 0;           
+            header.user_data_in_header_size = 0;
+            header.vlrs = null;
+            header.user_data_after_header_size = 0;
+
+            return header;
         }
 
         /// <summary>

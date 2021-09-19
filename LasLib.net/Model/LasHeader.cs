@@ -25,11 +25,11 @@ namespace LasLibNet
         private uint _project_ID_GUID_data_1;
         private ushort _project_ID_GUID_data_2;
         private ushort _project_ID_GUID_data_3;
-        private readonly byte[] _project_ID_GUID_data_4 = new byte[8];
+        private byte[] _project_ID_GUID_data_4 = new byte[8];
         private byte _version_major;
         private byte _version_minor;
-        private readonly byte[] _system_identifier = new byte[32];
-        private readonly byte[] _generating_software = new byte[32];
+        private byte[] _system_identifier = new byte[32];
+        private byte[] _generating_software = new byte[32];
         private ushort _file_creation_day;
         private ushort _file_creation_year;
         private ushort _header_size;
@@ -38,7 +38,7 @@ namespace LasLibNet
         private byte _point_data_format;
         private ushort _point_data_record_length;
         private uint _number_of_point_records;
-        private readonly uint[] _number_of_points_by_return = new uint[5];
+        private uint[] _number_of_points_by_return = new uint[5];
         private double _x_scale_factor;
         private double _y_scale_factor;
         private double _z_scale_factor;
@@ -59,7 +59,7 @@ namespace LasLibNet
         private ulong _start_of_first_extended_variable_length_record;
         private uint _number_of_extended_variable_length_records;
         private ulong _extended_number_of_point_records;
-        private readonly ulong[] _extended_number_of_points_by_return = new ulong[15];
+        private ulong[] _extended_number_of_points_by_return = new ulong[15];
 
         // optional
         private uint _user_data_in_header_size;
@@ -93,14 +93,14 @@ namespace LasLibNet
         public ushort project_ID_GUID_data_2 { get => _project_ID_GUID_data_2; set => _project_ID_GUID_data_2 = value; }
         public ushort project_ID_GUID_data_3 { get => _project_ID_GUID_data_3; set => _project_ID_GUID_data_3 = value; }
 
-        public byte[] project_ID_GUID_data_4 => _project_ID_GUID_data_4;
+        public byte[] project_ID_GUID_data_4 { get => _project_ID_GUID_data_4; set => _project_ID_GUID_data_4 = value; }
 
         public byte version_major { get => _version_major; set => _version_major = value; }
         public byte version_minor { get => _version_minor; set => _version_minor = value; }
 
-        public byte[] system_identifier => _system_identifier;
+        public byte[] system_identifier {get=> _system_identifier;set=>_system_identifier=value;}
 
-        public byte[] generating_software => _generating_software;
+        public byte[] generating_software { get => _generating_software; set => _generating_software = value; }
 
         public ushort file_creation_day { get => _file_creation_day; set => _file_creation_day = value; }
         public ushort file_creation_year { get => _file_creation_year; set => _file_creation_year = value; }
@@ -111,7 +111,7 @@ namespace LasLibNet
         public ushort point_data_record_length { get => _point_data_record_length; set => _point_data_record_length = value; }
         public uint number_of_point_records { get => _number_of_point_records; set => _number_of_point_records = value; }
 
-        public uint[] number_of_points_by_return => _number_of_points_by_return;
+        public uint[] number_of_points_by_return { get => _number_of_points_by_return; set=> _number_of_points_by_return=value; }
 
         public double x_scale_factor { get => _x_scale_factor; set => _x_scale_factor = value; }
         public double y_scale_factor { get => _y_scale_factor; set => _y_scale_factor = value; }

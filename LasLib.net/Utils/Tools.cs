@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using LasLibNet;
 
 namespace LasLibNet.Utils
@@ -31,6 +32,30 @@ namespace LasLibNet.Utils
                 DisplayValue(name, value);
             }
         }
+
+        /// <summary>
+        /// Display the properties in the datagridview.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="model"></param>
+        /// <param name="dgv"></param>
+        public static void DisplayClassProperties<T>(T model, DataGridView dgv)
+        {
+            Type t = model.GetType();
+            modelName = t.ToString();
+
+            PropertyInfo[] PropertyList = t.GetProperties();
+            foreach (PropertyInfo item in PropertyList)
+            {
+                string name = item.Name;
+                if (name == "Instance" || name.StartsWith("extended")) continue;
+
+                object value = item.GetValue(model, null);
+
+                dgv.Rows.Add(name, ToString(name,value));
+            }
+        }
+
         /// <summary>
         /// Display the variable name and its value.
         /// </summary>
@@ -38,7 +63,9 @@ namespace LasLibNet.Utils
         /// <param name="value"></param>
         public static void DisplayValue(string name, object value)
         {
+            if (name == "Instance") return;
             if (value == null) return;
+
             Type t = value.GetType();
             if (t.Equals(typeof(byte)))
                 Debug.WriteLine(modelName+".{0} = {1}", name, ((byte)value).ToString("x2"));
@@ -68,6 +95,47 @@ namespace LasLibNet.Utils
                 Debug.WriteLine(modelName+".{0} = \"{1}\"", name, value);
             else
                 Console.WriteLine(modelName+".{0} = {1}", name, value.ToString());
+        }
+
+        /// <summary>
+        /// Convert the value into string.
+        /// </summary>
+        /// <param name="value"></param>
+        public static string ToString(string name, object value)
+        {
+            if (value == null) return "";
+            Type t = value.GetType();
+            if (t.Equals(typeof(byte)))
+                return ((byte)value).ToString("x2");
+            else if (t.Equals(typeof(byte[])) 
+                && (name== "system_identifier" || name== "generating_software"))
+                return System.Text.Encoding.UTF8.GetString((byte[])value);
+            else if (t.Equals(typeof(byte[])))
+                return BitConverter.ToString((byte[])value);
+            else if (t.Equals(typeof(byte[])))
+                return BitConverter.ToString((byte[])value);
+            else if (t.Equals(typeof(UInt32[])))
+            {
+                return array_string((UInt32[])value);
+            }
+            else if (t.Equals(typeof(UInt64[])))
+            {
+               return array_string((UInt64[])value);
+            }
+            else if (t.Equals(typeof(UInt16[])))
+            {
+                return array_string((UInt16[])value);
+            }
+            else if (t.Equals(typeof(int)) || t.Equals(typeof(long))
+                || t.Equals(typeof(short)) || t.Equals(typeof(uint)) || t.Equals(typeof(UInt32))
+                || t.Equals(typeof(ushort)) || t.Equals(typeof(ulong)))
+                return value.ToString();
+            else if (t.Equals(typeof(double)) || t.Equals(typeof(Single)))
+                return ((double)value).ToString("f6");
+            else if (t.Equals(typeof(List<LasVLR>)))
+                return list_string((List<LasVLR>)value);
+            else 
+                return value.ToString();
         }
 
         private static string array_string(UInt16[] arr)
