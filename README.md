@@ -4,17 +4,17 @@
 
 ## Usage
 ### 1. How to read a las file
-   // Create a las reader instance \
-   LasReader lasReader = new LasReader(); \
-   // Declare a lasHeader variable to get the header of a las file \
-   LasHeader lasHeader; \ \
-   
+   // Create a las reader instance\
+   LasReader lasReader = new LasReader();\
+   // Declare a lasHeader variable to get the header of a las file\
+   LasHeader lasHeader;\
+   \
    // Open a las file \
-   if(lasReader.OpenReader(@"d:\sample_data\sample.las")==true) \
-   { \
-      // Get the header info. about the opened las file. \
-      lasHeader = lasReader.Header; \
-      // Todo about the header \
+   if(lasReader.OpenReader(@"d:\sample_data\sample.las")==true)\
+   {\
+      // Get the header info. about the opened las file.\
+      lasHeader = lasReader.Header;\
+      // Todo about the header\
    } \ 
    \
 ### 2. How to traverse all point data? 
