@@ -40,8 +40,49 @@
     LasPoint p = new LasPoint(); 
     p.FromPoint_1_2_Format3(point_1_2_3);  // The point_1_2_3 is the a variable of the model LasPoint_1_2_Format3.
     
-### 4. How to create a las file?
-    ... ...
-    Continuing...
-                
+### 4. How to create a new las file?
+    - Create and set the las header setting. For example:
+        LasHeader header = LasHeader.Instance;
+        header.Init();  //Set all parameters to the configuration of R1.2 and format3 Las Point.
+      
+    - Read all point data, and calculat the max and min value for x/y/z, and set these values to header variable. Get number of points, and set the number_of_point_records. For example:
+         header.number_of_point_records = points_count;
+         header.max_x = max_x;
+         header.min_x = min_x;
+         header.max_y = max_y;
+         header.min_y = min_y;
+         header.max_z = max_z;
+         header.min_z = min_z;
+             
+    - Create LasWriter instance, open the writer, and write the header. Codes are following:
+            LasWriter lasWriter = new LasWriter(newHeader);
+            if (!lasWriter.OpenWriter(lasFile))   //the lasFile is the las file path wanted to be create.
+            {
+                MessageBox.Show(lasWriter.Error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                lasWriter.CloseWriter();
+                return;
+            }
+
+            if (!lasWriter.WriteHeader())
+            {
+                MessageBox.Show(lasWriter.Error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                lasWriter.CloseWriter();
+                return;
+            }
+            
+      - Write point data. For example:
+           foreach (DataRow row in dtCSV.Rows)
+           {
+             LasPoint p = new LasPoint();
+             p.GeoX = double.Parse(row["X"].ToString());
+             p.GeoY = double.Parse(row["Y"].ToString());
+             p.GeoZ = double.Parse(row["Z"].ToString());
+             p.intensity = ushort.Parse(row["I"].ToString());
+             p.red = ushort.Parse(row["R"].ToString());
+             p.green = ushort.Parse(row["G"].ToString());
+             p.blue = ushort.Parse(row["B"].ToString());
+           }
+           
+       - Close writer.
+           lasWriter.CloseWriter();
    
