@@ -1,4 +1,4 @@
-# laslib.net
+# LasLibNet
 * The LasLibNet is a library coded ONLY by C#, and used to read or write the las/laz file.  The author is a teacher and a developer in GIS department of **Central Southen University**, Hunan province, China. If you any question, you can send email to Ligq168@csu.edu.cn.
 * LasLibNet库是用C#编写的、用于读取或写入las/laz文件的.net 库， 作者是**中南大学地理信息系**的老师，如果你有任何问题，可以发邮件到Ligq168@csu.edu.cn, 或者加QQ41733233.
 
