@@ -3,19 +3,18 @@
 * LasLibNet库是用C#编写的、用于读取或写入las/laz文件的.net 库， 作者是**中南大学地理信息系**的老师，如果你有任何问题，可以发邮件到Ligq168@csu.edu.cn, 或者加QQ41733233.
 
 ## Usage
-### 1. How to read a las file
-   // Create a las reader instance
-   LasReader lasReader = new LasReader();
-   // Declare a lasHeader variable to get the header of a las file\
-   LasHeader lasHeader;
-   
-   // Open a las file 
-   if(lasReader.OpenReader(@"d:\sample_data\sample.las")==true)
-   {
-      // Get the header info. about the opened las file.
+### 1. How to read a las file? 
+    // Create a las reader instance
+    LasReader lasReader = new LasReader();
+    // Declare a las header variable to get the header of a las file
+    LasHeader lasHeader;
+    
+    // Open a las file
+    if(lasReader.OpenReader(@"d:\sample_data\sample.las"))
+    {
       lasHeader = lasReader.Header;
-      // Todo about the header
-   }
+      // Toto about the header or point data.
+    }  
    
 ### 2. How to traverse all point data? 
     // Loop through number of points indicated
