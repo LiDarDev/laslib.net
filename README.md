@@ -11,25 +11,25 @@
    
    // Open a las file \
    if(lasReader.OpenReader(@"d:\sample_data\sample.las")==true)\
-   {\
+   {
       // Get the header info. about the opened las file.\
       lasHeader = lasReader.Header;\
       // Todo about the header\
-   }\ 
-   \
+   }
+   
 ### 2. How to traverse all point data? 
     // Loop through number of points indicated\
      for (int pointIndex = 0; pointIndex < lasHeader.number_of_point_records; pointIndex++)\
-      {\
+      {
           // Read the point\
           LasPoint p = lasReader.ReadPoint();\
           if (p == null)\
-          {\
+          {
               MessageBox.Show(lasReader.Error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);\
               break;\
-          }\
+          }
           // Todo about the las point.\
-     }\
+     }
      
 ### 3. How to get different VERSION and FORMAT point data?
     If you want know about the las file format, you can access https://en.wikipedia.org/wiki/LAS_file_format.
@@ -42,7 +42,7 @@
     p.FromPoint_1_2_Format3(point_1_2_3);  // The point_1_2_3 is the a variable of the model LasPoint_1_2_Format3.\
     
 ### 4. How to create a las file?
-    ... ...\
+    ... ...
     Continuing...
                 
    
