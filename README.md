@@ -45,7 +45,8 @@
         LasHeader header = LasHeader.Instance;
         header.Init();  //Set all parameters to the configuration of R1.2 and format3 Las Point.
       
-    - Read all point data, and calculat the max and min value for x/y/z, and set these values to header variable. Get number of points, and set the number_of_point_records. For example:
+    - Read all point data, and calculat the max and min value for x/y/z, and set these values to header variable. 
+      Get number of points, and set the number_of_point_records. For example:
          header.number_of_point_records = points_count;
          header.max_x = max_x;
          header.min_x = min_x;
@@ -70,7 +71,7 @@
                 return;
             }
             
-      - Write point data. For example:
+    - Write point data. For example:
            foreach (DataRow row in dtCSV.Rows)
            {
              LasPoint p = new LasPoint();
@@ -83,6 +84,6 @@
              p.blue = ushort.Parse(row["B"].ToString());
            }
            
-       - Close writer.
+    - Close writer.
            lasWriter.CloseWriter();
    
