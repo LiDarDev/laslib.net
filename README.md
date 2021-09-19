@@ -1,5 +1,5 @@
 # laslib.net
-The laslib.net is a library for .net, which coded ONLY by C#, and can read or write the las/laz file. 
+The laslib.net is a library coded ONLY by C#, and used to read or write the las/laz file. 
 
 #Usage
 1. How to read a las file
