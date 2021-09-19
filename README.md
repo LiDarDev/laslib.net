@@ -4,7 +4,7 @@
 
 ## Usage
 ### 1. How to read a las file
-   // Create a las reader instance
+   // Create a las reader instance <br/>
    LasReader lasReader = new LasReader();
    // Declare a lasHeader variable to get the header of a las file
    LasHeader lasHeader;
