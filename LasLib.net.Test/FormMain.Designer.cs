@@ -45,12 +45,15 @@
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.dgvInfo = new System.Windows.Forms.DataGridView();
-            this.colKey = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.colVal = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.dgvData = new System.Windows.Forms.DataGridView();
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
+            this.colKey = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.colVal = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.tsbOpenCSV = new System.Windows.Forms.ToolStripButton();
+            this.tsbExportCSV = new System.Windows.Forms.ToolStripButton();
+            this.tsbSaveNewLas = new System.Windows.Forms.ToolStripButton();
             this.toolStrip1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
@@ -70,12 +73,15 @@
             this.toolStripButton2,
             this.toolStripButton3,
             this.toolStripButton4,
+            this.tsbExportCSV,
+            this.tsbSaveAs,
             this.toolStripSeparator1,
+            this.tsbOpenCSV,
             this.tsbCreateLas,
-            this.tsbSaveAs});
+            this.tsbSaveNewLas});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(1135, 25);
+            this.toolStrip1.Size = new System.Drawing.Size(1397, 25);
             this.toolStrip1.TabIndex = 0;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -90,6 +96,7 @@
             // 
             // toolStripButton2
             // 
+            this.toolStripButton2.Enabled = false;
             this.toolStripButton2.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton2.Image")));
             this.toolStripButton2.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton2.Name = "toolStripButton2";
@@ -99,6 +106,7 @@
             // 
             // toolStripButton3
             // 
+            this.toolStripButton3.Enabled = false;
             this.toolStripButton3.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton3.Image")));
             this.toolStripButton3.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton3.Name = "toolStripButton3";
@@ -108,6 +116,7 @@
             // 
             // toolStripButton4
             // 
+            this.toolStripButton4.Enabled = false;
             this.toolStripButton4.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton4.Image")));
             this.toolStripButton4.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripButton4.Name = "toolStripButton4";
@@ -131,11 +140,13 @@
             // 
             // tsbSaveAs
             // 
+            this.tsbSaveAs.Enabled = false;
             this.tsbSaveAs.Image = ((System.Drawing.Image)(resources.GetObject("tsbSaveAs.Image")));
             this.tsbSaveAs.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.tsbSaveAs.Name = "tsbSaveAs";
-            this.tsbSaveAs.Size = new System.Drawing.Size(80, 22);
-            this.tsbSaveAs.Text = "Clone To";
+            this.tsbSaveAs.Size = new System.Drawing.Size(72, 22);
+            this.tsbSaveAs.Text = "Save as";
+            this.tsbSaveAs.ToolTipText = "Save the current las file to another las file.";
             this.tsbSaveAs.Click += new System.EventHandler(this.tsbSaveAs_Click);
             // 
             // statusStrip1
@@ -145,9 +156,9 @@
             this.toolStripStatusLabel3,
             this.tslFile,
             this.tsProgressbar});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 787);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 829);
             this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(1135, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(1397, 22);
             this.statusStrip1.TabIndex = 1;
             this.statusStrip1.Text = "statusStrip1";
             // 
@@ -203,8 +214,8 @@
             // splitContainer1.Panel2
             // 
             this.splitContainer1.Panel2.Controls.Add(this.groupBox1);
-            this.splitContainer1.Size = new System.Drawing.Size(1135, 762);
-            this.splitContainer1.SplitterDistance = 349;
+            this.splitContainer1.Size = new System.Drawing.Size(1397, 804);
+            this.splitContainer1.SplitterDistance = 584;
             this.splitContainer1.TabIndex = 2;
             // 
             // groupBox2
@@ -213,7 +224,7 @@
             this.groupBox2.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBox2.Location = new System.Drawing.Point(0, 0);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(349, 762);
+            this.groupBox2.Size = new System.Drawing.Size(584, 804);
             this.groupBox2.TabIndex = 1;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Las File Info.";
@@ -229,22 +240,9 @@
             this.dgvInfo.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvInfo.Location = new System.Drawing.Point(3, 17);
             this.dgvInfo.Name = "dgvInfo";
-            this.dgvInfo.ReadOnly = true;
             this.dgvInfo.RowTemplate.Height = 23;
-            this.dgvInfo.Size = new System.Drawing.Size(343, 742);
+            this.dgvInfo.Size = new System.Drawing.Size(578, 784);
             this.dgvInfo.TabIndex = 0;
-            // 
-            // colKey
-            // 
-            this.colKey.HeaderText = "Key";
-            this.colKey.Name = "colKey";
-            this.colKey.ReadOnly = true;
-            // 
-            // colVal
-            // 
-            this.colVal.HeaderText = "Value";
-            this.colVal.Name = "colVal";
-            this.colVal.ReadOnly = true;
             // 
             // groupBox1
             // 
@@ -252,7 +250,7 @@
             this.groupBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.groupBox1.Location = new System.Drawing.Point(0, 0);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(782, 762);
+            this.groupBox1.Size = new System.Drawing.Size(809, 804);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Las Points";
@@ -267,7 +265,7 @@
             this.dgvData.Name = "dgvData";
             this.dgvData.ReadOnly = true;
             this.dgvData.RowTemplate.Height = 23;
-            this.dgvData.Size = new System.Drawing.Size(776, 742);
+            this.dgvData.Size = new System.Drawing.Size(803, 784);
             this.dgvData.TabIndex = 0;
             // 
             // openFileDialog
@@ -281,11 +279,55 @@
             this.saveFileDialog.Filter = "*.las|*.las|All File|*.*";
             this.saveFileDialog.Title = "Create a Las File";
             // 
+            // colKey
+            // 
+            this.colKey.HeaderText = "Key";
+            this.colKey.Name = "colKey";
+            this.colKey.ReadOnly = true;
+            this.colKey.Width = 256;
+            // 
+            // colVal
+            // 
+            this.colVal.HeaderText = "Value";
+            this.colVal.Name = "colVal";
+            this.colVal.Width = 256;
+            // 
+            // tsbOpenCSV
+            // 
+            this.tsbOpenCSV.Image = ((System.Drawing.Image)(resources.GetObject("tsbOpenCSV.Image")));
+            this.tsbOpenCSV.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbOpenCSV.Name = "tsbOpenCSV";
+            this.tsbOpenCSV.Size = new System.Drawing.Size(87, 22);
+            this.tsbOpenCSV.Text = "Open CSV";
+            this.tsbOpenCSV.ToolTipText = "Open CSV and load data";
+            this.tsbOpenCSV.Click += new System.EventHandler(this.tsbOpenCSV_Click);
+            // 
+            // tsbExportCSV
+            // 
+            this.tsbExportCSV.Enabled = false;
+            this.tsbExportCSV.Image = ((System.Drawing.Image)(resources.GetObject("tsbExportCSV.Image")));
+            this.tsbExportCSV.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbExportCSV.Name = "tsbExportCSV";
+            this.tsbExportCSV.Size = new System.Drawing.Size(93, 22);
+            this.tsbExportCSV.Text = "Export CSV";
+            this.tsbExportCSV.ToolTipText = "Export all the point data to a CSV file.";
+            this.tsbExportCSV.Click += new System.EventHandler(this.tsbExportCSV_Click);
+            // 
+            // tsbSaveNewLas
+            // 
+            this.tsbSaveNewLas.Image = ((System.Drawing.Image)(resources.GetObject("tsbSaveNewLas.Image")));
+            this.tsbSaveNewLas.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.tsbSaveNewLas.Name = "tsbSaveNewLas";
+            this.tsbSaveNewLas.Size = new System.Drawing.Size(108, 22);
+            this.tsbSaveNewLas.Text = "Save New Las";
+            this.tsbSaveNewLas.ToolTipText = "Save the data to a new las file";
+            this.tsbSaveNewLas.Click += new System.EventHandler(this.toolStripButton5_Click);
+            // 
             // FormMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1135, 809);
+            this.ClientSize = new System.Drawing.Size(1397, 851);
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.toolStrip1);
@@ -327,13 +369,16 @@
         private System.Windows.Forms.ToolStripButton toolStripButton2;
         private System.Windows.Forms.ToolStripButton toolStripButton3;
         private System.Windows.Forms.OpenFileDialog openFileDialog;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colKey;
-        private System.Windows.Forms.DataGridViewTextBoxColumn colVal;
         private System.Windows.Forms.ToolStripButton toolStripButton4;
         private System.Windows.Forms.ToolStripSeparator toolStripSeparator1;
         private System.Windows.Forms.ToolStripButton tsbCreateLas;
         private System.Windows.Forms.ToolStripButton tsbSaveAs;
         private System.Windows.Forms.SaveFileDialog saveFileDialog;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colKey;
+        private System.Windows.Forms.DataGridViewTextBoxColumn colVal;
+        private System.Windows.Forms.ToolStripButton tsbOpenCSV;
+        private System.Windows.Forms.ToolStripButton tsbExportCSV;
+        private System.Windows.Forms.ToolStripButton tsbSaveNewLas;
     }
 }
 

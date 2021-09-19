@@ -85,6 +85,8 @@ namespace LasLibNet
                     header = new LasHeader();
                 return header;
             }
+
+            set => header = value;
         }
 
         public ushort file_source_ID { get => _file_source_ID; set => _file_source_ID = value; }

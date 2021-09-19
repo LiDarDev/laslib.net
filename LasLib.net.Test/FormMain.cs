@@ -1,5 +1,6 @@
 ﻿using LasLibNet;
 using LasLibNet.Model;
+using LasLibNet.Test;
 using LasLibNet.Utils;
 using LasLibNet.Writer;
 using System;
@@ -23,6 +24,7 @@ namespace LasLib.net.Test
 
         LasReader lasReader = new LasReader();
         LasHeader lasHeader;
+        LasHeader newHeader;  // New las file header.
 
         bool isCompressed = true;
 
@@ -46,9 +48,15 @@ namespace LasLib.net.Test
                 if (lasReader.OpenReader(this.lasFile) == false)
                 {
                     MessageBox.Show(lasReader.Error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    lasReader.CloseReader();
                     return;
                 }
+                this.toolStripButton2.Enabled = true;
+                this.toolStripButton3.Enabled = true;
+                this.toolStripButton4.Enabled = true;
+                this.tsbSaveAs.Enabled = true;                
 
+                //Display the header info.
                 this.toolStripButton2_Click(null, null);
             }
         }
@@ -61,6 +69,7 @@ namespace LasLib.net.Test
         private void toolStripButton2_Click(object sender, EventArgs e)
         {
             lasHeader = this.lasReader.Header;
+            this.dgvInfo.Rows.Clear();
 
             #region 创建数据行
 
@@ -92,22 +101,22 @@ namespace LasLib.net.Test
 
             #region Create DataTable
             DataTable dt = new DataTable();
-            DataColumn colId = new DataColumn("colId", typeof(string));
+            DataColumn colId = new DataColumn("id", typeof(string));
             dt.Columns.Add(colId);
-            DataColumn colX = new DataColumn("colX", typeof(string));
+            DataColumn colX = new DataColumn("X", typeof(string));
             dt.Columns.Add(colX);
-            DataColumn colY = new DataColumn("colY", typeof(string));
+            DataColumn colY = new DataColumn("Y", typeof(string));
             dt.Columns.Add(colY);
-            DataColumn colZ = new DataColumn("colZ", typeof(string));
+            DataColumn colZ = new DataColumn("Z", typeof(string));
             dt.Columns.Add(colZ);
-            DataColumn colI = new DataColumn("colI", typeof(string));
+            DataColumn colI = new DataColumn("I", typeof(string));
             dt.Columns.Add(colI);
             DataColumn colR = new DataColumn("R", typeof(string));
             dt.Columns.Add(colR);
-            DataColumn colB = new DataColumn("colB", typeof(string));
-            dt.Columns.Add(colB);
-            DataColumn colG = new DataColumn("colG", typeof(string));
+            DataColumn colG = new DataColumn("G", typeof(string));
             dt.Columns.Add(colG);
+            DataColumn colB = new DataColumn("B", typeof(string));
+            dt.Columns.Add(colB);
             #endregion
 
             #region Add Data Row
@@ -129,6 +138,7 @@ namespace LasLib.net.Test
                     MessageBox.Show(lasReader.Error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     break;
                 }
+                
                 DataRow row = dt.NewRow();
                 row[colId] = (pointIndex+1).ToString();
                 row[colX] = p.GeoX.ToString("f2");
@@ -146,7 +156,7 @@ namespace LasLib.net.Test
             this.dgvData.DataSource = dt;
             this.Cursor = Cursors.Default;
             this.tslMain.Text = "Data read successfully!";
-
+            this.tsbExportCSV.Enabled = true;
 
         }
 
@@ -164,6 +174,12 @@ namespace LasLib.net.Test
                 dt.Clear();
             this.dgvInfo.Rows.Clear();
             this.tslFile.Text = "No file opened!";
+
+            this.toolStripButton2.Enabled = false;
+            this.toolStripButton3.Enabled = false;
+            this.toolStripButton4.Enabled = false;
+            this.tsbSaveAs.Enabled = false;
+            this.tsbExportCSV.Enabled = false;
         }
 
         /// <summary>
@@ -173,83 +189,57 @@ namespace LasLib.net.Test
         /// <param name="e"></param>
         private void tsbCreateLas_Click(object sender, EventArgs e)
         {
-            LasHeader header = this.CreateHeader();
-
-
-            /*
-            if (this.saveFileDialog.ShowDialog() != DialogResult.OK)
+            if (this.dgvData.Rows.Count < 1)
             {
-                MessageBox.Show("You hav't choose a las file!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                MessageBox.Show("Please open a csv firstly !", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 return;
             }
 
-            string FileName = this.saveFileDialog.FileName;
-
-            // --- Write Example
-            var point = new Point3D();
-            var points = new List<Point3D>();
-
-            point.X = 1000.0;
-            point.Y = 2000.0;
-            point.Z = 100.0;
-            points.Add(point);
-
-            point.X = 5000.0;
-            point.Y = 6000.0;
-            point.Z = 200.0;
-            points.Add(point);
-
-            //LasWriter lazWriter = new LasWriter();
-            var err = lazWriter.Init();
-            if (err == true)
+            try
             {
-                // Number of point records needs to be set
-                lazWriter.Header.number_of_point_records = (uint)points.Count;
+                // Search the x/y/z max and min value.
+                double max_x = double.MinValue, max_y = double.MinValue, max_z = double.MinValue,
+                       min_x = double.MaxValue, min_y = double.MaxValue, min_z = double.MaxValue;
 
-                // Header Min/Max needs to be set to extents of points
-                lazWriter.Header.min_x = points[0].X; // LL Point
-                lazWriter.Header.min_y = points[0].Y;
-                lazWriter.Header.min_z = points[0].Z;
-                lazWriter.Header.max_x = points[1].X; // UR Point
-                lazWriter.Header.max_y = points[1].Y;
-                lazWriter.Header.max_z = points[1].Z;
-
-                // Open the writer and test for errors
-                //err = lazWriter.OpenWriter(FileName, true);
-                if (err)
+                DataTable dt = (DataTable)this.dgvData.DataSource;
+                double d;
+                foreach (DataRow row in dt.Rows)
                 {
-                    double[] coordArray = new double[3];
-                    foreach (var p in points)
-                    {
-                        coordArray[0] = p.X;
-                        coordArray[1] = p.Y;
-                        coordArray[2] = p.Z;
+                    d = double.Parse(row["X"].ToString());
+                    if (d > max_x) max_x = d;
+                    if (d < min_x) min_x = d;
 
-                        // Set the coordinates in the lazWriter object
-                        lazWriter.SetCoordinates(coordArray);
+                    d = double.Parse(row["Y"].ToString());
+                    if (d > max_y) max_y = d;
+                    if (d < max_y) min_y = d;
 
-                        // Set the classification to ground
-                        lazWriter.Point.classification = 2;
-
-                        // Write the point to the file
-                        err = lazWriter.WritePoint();
-                        if (!err) break;
-                    }
-
-                    // Close the writer to release the file (OS lock)
-                    err = lazWriter.CloseWriter();
-                    lazWriter = null;
+                    d = double.Parse(row["Z"].ToString());
+                    if (d > max_z) max_z = d;
+                    if (d < max_z) min_z = d;
                 }
-            }
 
-            if (!err)
-            {
-                MessageBox.Show(lazWriter.Error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                LasHeader header = this.CreateHeader();
+                header.number_of_point_records = (uint)dt.Rows.Count;
+                header.max_x = max_x;
+                header.min_x = min_x;
+                header.max_y = max_y;
+                header.min_y = min_y;
+                header.max_z = max_z;
+                header.min_z = min_z;
+
+                this.dgvInfo.Rows.Clear();
+                Tools.DisplayClassProperties<LasHeader>(header, this.dgvInfo);
+
+                this.newHeader = header;
+
             }
-            else
-                MessageBox.Show("Write las file succesfully!", "Congregation", MessageBoxButtons.OK, MessageBoxIcon.Information);
-            // --- Upon completion, file should be 389 bytes
-            */
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error: "+ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+            
+
         }
 
         private LasHeader CreateHeader()
@@ -261,13 +251,13 @@ namespace LasLib.net.Test
             header.project_ID_GUID_data_1 = 0;
             header.project_ID_GUID_data_2 = 0;
             header.project_ID_GUID_data_3 = 0;
-            header.project_ID_GUID_data_4 = new byte[4];
+            header.project_ID_GUID_data_4 = new byte[8];
             header.version_major = 01;
             header.version_minor = 02; ;
-            header.system_identifier = Encoding.UTF8.GetBytes("CSU LasLibNet R1.0, 20210918") ;
-            header.generating_software = Encoding.UTF8.GetBytes("CSU LasLibNet R1.0, 20210918");
-            header.file_creation_day = 171;
-            header.file_creation_year = 2021;
+            header.system_identifier = Encoding.UTF8.GetBytes("CSU LasLibNet R1.0, 20210918    ") ;
+            header.generating_software = Encoding.UTF8.GetBytes("CSU LasLibNet R1.0, 20210918    ");
+            header.file_creation_day = (ushort)DateTime.Now.DayOfYear;
+            header.file_creation_year = (ushort)DateTime.Now.Year;
             header.header_size = 227;
             header.offset_to_point_data = 227;
             header.number_of_variable_length_records = 0;
@@ -276,9 +266,9 @@ namespace LasLib.net.Test
             header.number_of_point_records = 0;
             uint[] uints = { 0, 0, 0, 0, 0 };
             header.number_of_points_by_return =uints ;
-            header.x_scale_factor = 0.001000;
-            header.y_scale_factor = 0.001000;
-            header.z_scale_factor = 0.001000;
+            header.x_scale_factor = 0.01000;
+            header.y_scale_factor = 0.01000;
+            header.z_scale_factor = 0.01000;
             header.x_offset = 0;
             header.y_offset = 0;
             header.z_offset = 0;
@@ -373,5 +363,116 @@ namespace LasLib.net.Test
         
         }
 
+        private void tsbOpenCSV_Click(object sender, EventArgs e)
+        {
+            using (OpenFileDialog dialog = new OpenFileDialog())
+            {
+                try
+                {
+                    dialog.Filter = "csv files (*.csv)|*.csv";
+                    dialog.Multiselect = false;
+                    dialog.InitialDirectory = ".";
+                    dialog.Title = "Select file (only in csv format)";
+                    
+                    this.tslMain.Text = " Reading csv ...";
+                    this.Cursor = Cursors.WaitCursor;
+
+                    if (dialog.ShowDialog() == DialogResult.OK)
+                    {
+                        dtCSV = CSVHelper.ReadData(dialog.FileName);
+                        this.dgvData.DataSource = dtCSV;
+                    }
+
+                    this.tslMain.Text = "Read CSV data successfully.";
+                    this.Cursor = Cursors.Default;
+                }
+                catch (Exception ex)
+                { 
+                    
+                }
+            }
+        }
+
+        private void tsbExportCSV_Click(object sender, EventArgs e)
+        {
+            using (SaveFileDialog dialog = new SaveFileDialog())
+            {
+                try
+                {
+                    dialog.Filter = "csv files (*.csv)|*.csv";
+                    dialog.InitialDirectory = ".";
+                    dialog.Title = "Select file (only in csv format)";
+                    if (dialog.ShowDialog() == DialogResult.OK)
+                    {
+                        this.tslMain.Text = " Exporting csv ...";
+                        this.Cursor = Cursors.WaitCursor;
+
+                        CSVHelper.Export(this.dgvData, dialog.FileName);
+                        MessageBox.Show(" Export data to CSV Successfully.", "Info.", MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                        this.tslMain.Text = "Export data to CSV file successfully.";
+                        this.Cursor = Cursors.Default;
+                    }
+                }
+                catch (Exception ex)
+                { }
+            }
+        }
+
+        DataTable dtCSV;
+
+        /// <summary>
+        /// Save a new las.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void toolStripButton5_Click(object sender, EventArgs e)
+        {
+
+            if (this.saveFileDialog.ShowDialog() != DialogResult.OK)
+            {
+                MessageBox.Show("You hav't choose a las file!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+
+            string lasFile = this.saveFileDialog.FileName;
+
+            // Todo, Set header from the dgvinfo. 
+            LasWriter lasWriter = new LasWriter(newHeader);
+            if (!lasWriter.OpenWriter(lasFile))
+            {
+                MessageBox.Show(lasWriter.Error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                lasWriter.CloseWriter();
+                return;
+            }
+
+            if (!lasWriter.WriteHeader())
+            {
+                MessageBox.Show(lasWriter.Error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                lasWriter.CloseWriter();
+                return;
+            }
+
+            LasPoint p = new LasPoint();
+            LasHeader.Instance = newHeader;  // Set new header to LasHeader, which can be seemed as a globe.
+
+            // Write point
+            foreach (DataRow row in dtCSV.Rows)
+            {
+                p.GeoX = double.Parse(row["X"].ToString());
+                p.GeoY = double.Parse(row["Y"].ToString());
+                p.GeoZ = double.Parse(row["Z"].ToString());
+                p.intensity = ushort.Parse(row["I"].ToString());
+                p.red = ushort.Parse(row["R"].ToString());
+                p.green = ushort.Parse(row["G"].ToString());
+                p.blue = ushort.Parse(row["B"].ToString());
+
+                lasWriter.WritePoint(p);
+            }
+
+            lasWriter.CloseWriter();
+            MessageBox.Show("Create a las file successfully.");
+
+        }
     }
 }
