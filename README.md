@@ -87,3 +87,5 @@
     - Close writer.
            lasWriter.CloseWriter();
    
+## Example
+   ![image](https://github.com/LiDarDev/laslib.net/blob/main/Images/GUI.jpg)
