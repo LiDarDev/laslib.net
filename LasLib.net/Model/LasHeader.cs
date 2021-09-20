@@ -1,7 +1,7 @@
 ﻿
 ///////////////////////////////////////////////////////////////////////
 /// File    : LasHeader.cs
-/// Desc    : Las file header.
+/// Desc    : Las file this.
 /// Author  : Li G.Q.
 /// Date    : 2021/9/13/
 ///////////////////////////////////////////////////////////////////////
@@ -139,5 +139,50 @@ namespace LasLibNet
         public List<LasVLR> vlrs { get => _vlrs; set => _vlrs = value; }
         public uint user_data_after_header_size { get => _user_data_after_header_size; set => _user_data_after_header_size = value; }
         public byte[] user_data_after_header { get => _user_data_after_header; set => _user_data_after_header = value; }
+
+        /// <summary>
+        /// Initialize the setting for R1.2 and format3.
+        /// </summary>
+        public void Init()
+        {
+            this.file_source_ID = 0;
+            this.global_encoding = 0;
+            this.project_ID_GUID_data_1 = 0;
+            this.project_ID_GUID_data_2 = 0;
+            this.project_ID_GUID_data_3 = 0;
+            this.project_ID_GUID_data_4 = new byte[8];
+            this.version_major = 01;
+            this.version_minor = 02; ;
+            this.system_identifier = Encoding.UTF8.GetBytes("CSU LasLibNet R1.0, 20210918    ");
+            this.generating_software = Encoding.UTF8.GetBytes("CSU LasLibNet R1.0, 20210918    ");
+            this.file_creation_day = (ushort)DateTime.Now.DayOfYear;
+            this.file_creation_year = (ushort)DateTime.Now.Year;
+            this.header_size = 227;
+            this.offset_to_point_data = 227;
+            this.number_of_variable_length_records = 0;
+            this.point_data_format = 03;
+            this.point_data_record_length = 34;
+            this.number_of_point_records = 0;
+            uint[] uints = { 0, 0, 0, 0, 0 };
+            this.number_of_points_by_return = uints;
+            this.x_scale_factor = 0.01000;
+            this.y_scale_factor = 0.01000;
+            this.z_scale_factor = 0.01000;
+            this.x_offset = 0;
+            this.y_offset = 0;
+            this.z_offset = 0;
+            this.max_x = 0;
+            this.min_x = 0;
+            this.max_y = 0;
+            this.min_y = 0;
+            this.max_z = 0;
+            this.min_z = 0;
+            this.start_of_waveform_data_packet_record = 0;
+            this.start_of_first_extended_variable_length_record = 0;
+            this.number_of_extended_variable_length_records = 0;
+            this.user_data_in_header_size = 0;
+            this.vlrs = null;
+            this.user_data_after_header_size = 0;
+        }
     }
 }
