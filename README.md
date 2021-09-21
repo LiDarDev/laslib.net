@@ -17,6 +17,10 @@
     }  
    
 ### 2. How to traverse all point data? 
+
+    // Create a point reader
+    lasReader.CreatePointReader();
+            
     // Loop through number of points indicated
      for (int pointIndex = 0; pointIndex < lasHeader.number_of_point_records; pointIndex++)
       {
