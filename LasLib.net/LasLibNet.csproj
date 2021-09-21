@@ -43,16 +43,40 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Abstract\IFileReader.cs" />
     <Compile Include="Abstract\ILasPointReader.cs" />
     <Compile Include="Abstract\ILasPointWriter.cs" />
     <Compile Include="Abstract\LasItemWriter.cs" />
     <Compile Include="Abstract\LasRawItemWriter.cs" />
     <Compile Include="Abstract\LasCompressedItemWriter.cs" />
-    <Compile Include="LasFile.cs" />
+    <Compile Include="Abstract\LazItemReader.cs" />
+    <Compile Include="Model\LasFile.cs" />
+    <Compile Include="Model\LasCommon_v1.cs" />
+    <Compile Include="Model\LasCommon_v2.cs" />
     <Compile Include="Model\LasHeader.cs" />
+    <Compile Include="Model\Las_vlr.cs" />
+    <Compile Include="Model\LazFile.cs" />
+    <Compile Include="Model\LazItem.cs" />
     <Compile Include="Model\LasPoint.cs" />
+    <Compile Include="Model\StreamingMedian5.cs" />
+    <Compile Include="Model\U32I32F32.cs" />
+    <Compile Include="Model\U64I64F64.cs" />
+    <Compile Include="Reader\LazItemReader_BYTE_v1.cs" />
+    <Compile Include="Reader\LazItemReader_BYTE_v2.cs" />
+    <Compile Include="Reader\LazItemReader_GPSTIME11_v1.cs" />
+    <Compile Include="Reader\LazItemReader_GPSTIME11_v2.cs" />
+    <Compile Include="Reader\LazItemReader_POINT10_v1.cs" />
+    <Compile Include="Reader\LazItemReader_POINT10_v2.cs" />
+    <Compile Include="Reader\LazItemReader_RGB12_v1.cs" />
+    <Compile Include="Reader\LazItemReader_RGB12_v2.cs" />
+    <Compile Include="Reader\LazItemReader_WAVEPACKET13_v1.cs" />
+    <Compile Include="Reader\FileReader.cs" />
+    <Compile Include="Writer\LazItemWriter_BYTE_v2.cs" />
+    <Compile Include="Writer\LazCompressedItemWriter_GPSTIME11_v2.cs" />
+    <Compile Include="Writer\LazCompressedItemWriter_POINT10_v2.cs" />
+    <Compile Include="Writer\LazCompressedItemWriter_RGB12_v2.cs" />
+    <Compile Include="Writer\LazCompressedItemWriter_WAVEPACKET13_v1.cs" />
     <Compile Include="Reader\LasReader.cs" />
-    <Compile Include="Las_vlr.cs" />
     <Compile Include="Model\LasGeokey.cs" />
     <Compile Include="Model\LasPointBase.cs" />
     <Compile Include="Model\LasPoint_1_0.cs" />
@@ -65,6 +89,14 @@
     <Compile Include="Reader\LasPoint_1_0_Reader.cs" />
     <Compile Include="Reader\LasPoint_1_1_Reader.cs" />
     <Compile Include="Reader\LasPoint_1_2_Reader.cs" />
+    <Compile Include="Reader\LazPointReader.cs" />
+    <Compile Include="Reader\LazReader.cs" />
+    <Compile Include="Utils\ArithmeticBitModel.cs" />
+    <Compile Include="Utils\ArithmeticDecoder.cs" />
+    <Compile Include="Utils\ArithmeticEncoder.cs" />
+    <Compile Include="Utils\ArithmeticModel.cs" />
+    <Compile Include="Utils\Consts.cs" />
+    <Compile Include="Utils\IntegerCompressor.cs" />
     <Compile Include="Utils\MyDefs.cs" />
     <Compile Include="Utils\PointSize.cs" />
     <Compile Include="Utils\Tools.cs" />
@@ -74,6 +106,7 @@
     <Compile Include="Writer\LasPoint_1_2_Writer.cs" />
     <Compile Include="Writer\LasPoint_1_3_Writer.cs" />
     <Compile Include="Writer\LasWriter.cs" />
+    <Compile Include="Writer\LazWriter.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

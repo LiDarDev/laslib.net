@@ -6,6 +6,7 @@
 /// Date    : 2021/9/13/
 ///////////////////////////////////////////////////////////////////////
 ///
+using LasLibNet.Model;
 using System;
 using System.Collections.Generic;
 using System.Linq;

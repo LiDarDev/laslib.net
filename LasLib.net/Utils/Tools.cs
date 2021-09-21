@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using LasLibNet;
+using LasLibNet.Model;
 
 namespace LasLibNet.Utils
 {
@@ -109,7 +110,7 @@ namespace LasLibNet.Utils
                 return ((byte)value).ToString("x2");
             else if (t.Equals(typeof(byte[])) 
                 && (name== "system_identifier" || name== "generating_software"))
-                return System.Text.Encoding.UTF8.GetString((byte[])value);
+                return Encoding.UTF8.GetString((byte[])value);
             else if (t.Equals(typeof(byte[])))
                 return BitConverter.ToString((byte[])value);
             else if (t.Equals(typeof(byte[])))

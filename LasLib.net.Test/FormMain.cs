@@ -1,5 +1,7 @@
 ﻿using LasLibNet;
+using LasLibNet.Abstract;
 using LasLibNet.Model;
+using LasLibNet.Reader;
 using LasLibNet.Test;
 using LasLibNet.Utils;
 using LasLibNet.Writer;
@@ -22,19 +24,17 @@ namespace LasLib.net.Test
     {
         string lasFile = "";
 
-        LasReader lasReader = new LasReader();
+        IFileReader lasReader ;
         LasHeader lasHeader;
         LasHeader newHeader;  // New las file header.
-
-        bool isCompressed = true;
-
+        
         public FormMain()
         {
             InitializeComponent();
         }
 
         /// <summary>
-        /// Open a las file
+        /// Open a las or laz file
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -45,12 +45,28 @@ namespace LasLib.net.Test
             {
                 this.tslFile.Text = this.openFileDialog.FileName;
                 this.lasFile = this.tslFile.Text;
+
+                if (lasFile.ToLower().EndsWith(".las"))
+                    lasReader = new LasReader();
+                else if (lasFile.ToLower().EndsWith(".laz"))
+                    lasReader = new LazReader();
+                else
+                {
+                    MessageBox.Show("Please choose a las or laz file!", "Error"
+                        , MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                    return;
+                }
+
                 if (lasReader.OpenReader(this.lasFile) == false)
                 {
                     MessageBox.Show(lasReader.Error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                     lasReader.CloseReader();
                     return;
                 }
+
+                // Create a point reader
+                lasReader.CreatePointReader();
+
                 this.toolStripButton2.Enabled = true;
                 this.toolStripButton3.Enabled = true;
                 this.toolStripButton4.Enabled = true;
@@ -62,7 +78,7 @@ namespace LasLib.net.Test
         }
 
         /// <summary>
-        /// Display info.
+        /// Display Header info.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -119,9 +135,12 @@ namespace LasLib.net.Test
             dt.Columns.Add(colB);
             #endregion
 
+
             #region Add Data Row
-            // Go to the first point
-            lasReader.SeekPoint(0);
+            // Go to the first point. LAZ SeekPoint(0)未实现.
+            if(this.lasFile.ToLower().EndsWith(".las"))
+                lasReader.SeekPoint(0);
+
             if (this.dgvData.DataSource != null)
             {
                 DataTable dt1 = (DataTable)this.dgvData.DataSource;
