@@ -91,5 +91,12 @@
     - Close writer.
            lasWriter.CloseWriter();
    
+### 5. How to read a laz/laszip file? 
+    // Create a las reader instance
+    IFileReader lazReader = new LazReader();
+    // Declare a las header variable to get the header of a las file
+    LasHeader lasHeader;  
+    ... ... // Todo like reading the las file.
+   
 ## Example
    ![image](https://github.com/LiDarDev/laslib.net/blob/main/Images/GUI.jpg)
