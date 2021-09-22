@@ -44,11 +44,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Abstract\IFileReader.cs" />
+    <Compile Include="Abstract\IFileWriter.cs" />
     <Compile Include="Abstract\ILasPointReader.cs" />
     <Compile Include="Abstract\ILasPointWriter.cs" />
     <Compile Include="Abstract\LasItemWriter.cs" />
     <Compile Include="Abstract\LasRawItemWriter.cs" />
-    <Compile Include="Abstract\LasCompressedItemWriter.cs" />
+    <Compile Include="Abstract\LazItemWriter.cs" />
     <Compile Include="Abstract\LazItemReader.cs" />
     <Compile Include="Model\LasFile.cs" />
     <Compile Include="Model\LasCommon_v1.cs" />
@@ -71,11 +72,12 @@
     <Compile Include="Reader\LazItemReader_RGB12_v2.cs" />
     <Compile Include="Reader\LazItemReader_WAVEPACKET13_v1.cs" />
     <Compile Include="Reader\FileReader.cs" />
+    <Compile Include="Writer\FileWriter.cs" />
     <Compile Include="Writer\LazItemWriter_BYTE_v2.cs" />
-    <Compile Include="Writer\LazCompressedItemWriter_GPSTIME11_v2.cs" />
-    <Compile Include="Writer\LazCompressedItemWriter_POINT10_v2.cs" />
-    <Compile Include="Writer\LazCompressedItemWriter_RGB12_v2.cs" />
-    <Compile Include="Writer\LazCompressedItemWriter_WAVEPACKET13_v1.cs" />
+    <Compile Include="Writer\LazItemWriter_GPSTIME11_v2.cs" />
+    <Compile Include="Writer\LazItemWriter_POINT10_v2.cs" />
+    <Compile Include="Writer\LazItemWriter_RGB12_v2.cs" />
+    <Compile Include="Writer\LazItemWriter_WAVEPACKET13_v1.cs" />
     <Compile Include="Reader\LasReader.cs" />
     <Compile Include="Model\LasGeokey.cs" />
     <Compile Include="Model\LasPointBase.cs" />

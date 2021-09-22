@@ -24,10 +24,10 @@ namespace LasLib.net.Test
     {
         string lasFile = "";
 
-        IFileReader lasReader ;
+        IFileReader lasReader;
         LasHeader lasHeader;
         LasHeader newHeader;  // New las file header.
-        
+
         public FormMain()
         {
             InitializeComponent();
@@ -70,7 +70,7 @@ namespace LasLib.net.Test
                 this.toolStripButton2.Enabled = true;
                 this.toolStripButton3.Enabled = true;
                 this.toolStripButton4.Enabled = true;
-                this.tsbSaveAs.Enabled = true;                
+                this.tsbSaveAs.Enabled = true;
 
                 //Display the header info.
                 this.toolStripButton2_Click(null, null);
@@ -137,9 +137,8 @@ namespace LasLib.net.Test
 
 
             #region Add Data Row
-            // Go to the first point. LAZ SeekPoint(0)未实现.
-            if(this.lasFile.ToLower().EndsWith(".las"))
-                lasReader.SeekPoint(0);
+
+            lasReader.SeekPoint(0);
 
             if (this.dgvData.DataSource != null)
             {
@@ -157,9 +156,9 @@ namespace LasLib.net.Test
                     MessageBox.Show(lasReader.Error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     break;
                 }
-                
+
                 DataRow row = dt.NewRow();
-                row[colId] = (pointIndex+1).ToString();
+                row[colId] = (pointIndex + 1).ToString();
                 row[colX] = p.GeoX.ToString("f2");
                 row[colY] = p.GeoY.ToString("f2");
                 row[colZ] = p.GeoZ.ToString("f2");
@@ -254,10 +253,10 @@ namespace LasLib.net.Test
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error: "+ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                MessageBox.Show("Error: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
                 return;
             }
-            
+
 
         }
 
@@ -273,7 +272,7 @@ namespace LasLib.net.Test
             header.project_ID_GUID_data_4 = new byte[8];
             header.version_major = 01;
             header.version_minor = 02; ;
-            header.system_identifier = Encoding.UTF8.GetBytes("CSU LasLibNet R1.0, 20210918    ") ;
+            header.system_identifier = Encoding.UTF8.GetBytes("CSU LasLibNet R1.0, 20210918    ");
             header.generating_software = Encoding.UTF8.GetBytes("CSU LasLibNet R1.0, 20210918    ");
             header.file_creation_day = (ushort)DateTime.Now.DayOfYear;
             header.file_creation_year = (ushort)DateTime.Now.Year;
@@ -284,7 +283,7 @@ namespace LasLib.net.Test
             header.point_data_record_length = 34;
             header.number_of_point_records = 0;
             uint[] uints = { 0, 0, 0, 0, 0 };
-            header.number_of_points_by_return =uints ;
+            header.number_of_points_by_return = uints;
             header.x_scale_factor = 0.01000;
             header.y_scale_factor = 0.01000;
             header.z_scale_factor = 0.01000;
@@ -299,7 +298,7 @@ namespace LasLib.net.Test
             header.min_z = 0;
             header.start_of_waveform_data_packet_record = 0;
             header.start_of_first_extended_variable_length_record = 0;
-            header.number_of_extended_variable_length_records = 0;           
+            header.number_of_extended_variable_length_records = 0;
             header.user_data_in_header_size = 0;
             header.vlrs = null;
             header.user_data_after_header_size = 0;
@@ -314,7 +313,7 @@ namespace LasLib.net.Test
         /// <param name="e"></param>
         private void tsbSaveAs_Click(object sender, EventArgs e)
         {
-
+            bool result = true;
             if (this.saveFileDialog.ShowDialog() != DialogResult.OK)
             {
                 MessageBox.Show("You HAVE TO choose a las file!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
@@ -323,30 +322,54 @@ namespace LasLib.net.Test
 
             string FileName = this.saveFileDialog.FileName;
 
-            LasWriter lazWriter = new LasWriter(this.lasHeader);
+            IFileWriter lasWriter = null;
+            if (FileName.ToLower().EndsWith(".las"))
+                lasWriter = new LasWriter(this.lasHeader);
+            else if (FileName.ToLower().EndsWith(".laz"))
+                lasWriter = new LazWriter(this.lasHeader);
+            else
+            {
+                MessageBox.Show("Please choose a file name with LAS or LAZ extend name"
+                    , "Error"
+                    , MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
 
-            bool result = lazWriter.OpenWriter(FileName);
+            if (!lasWriter.OpenWriter(FileName))
+            {
+                MessageBox.Show("Open writer failed : "+lasWriter.Error
+                    , "Error"
+                    , MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            result = lasWriter.CreatePointWriter();
+
             if (!result)
             {
-                MessageBox.Show(lazWriter.Error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                Debug.WriteLine("  #Open Writer failed : " + lazWriter.Error);
-                lazWriter.CloseWriter();
+                MessageBox.Show(lasWriter.Error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                lasWriter.CloseWriter();
                 return;
             }
             byte[] header_info = lasReader.GetExtendHeader();
+            // if opened file is laz and save to a las file, then change the point_data_format into las format.
+            header_info[104] &= 127;
+
             if (header_info == null)
             {
-                MessageBox.Show(lazWriter.Error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);                
-                lazWriter.CloseWriter();
+                MessageBox.Show(lasWriter.Error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                lasWriter.CloseWriter();
                 return;
             }
 
-            if (lazWriter.WriteHeader(header_info) == false)
+            if (lasWriter.WriteHeader(lasReader.Header) == false)
             {
-                MessageBox.Show(lazWriter.Error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                lazWriter.CloseWriter();
+                MessageBox.Show(lasWriter.Error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                lasWriter.CloseWriter();
                 return;
             }
+
+            lasReader.SeekPoint(0);
 
             // Loop through number of points indicated
             for (int pointIndex = 0; pointIndex < this.lasHeader.number_of_point_records; pointIndex++)
@@ -355,22 +378,21 @@ namespace LasLib.net.Test
                 LasPoint p = lasReader.ReadPoint();
                 if (p == null)
                 {
-                    MessageBox.Show(lasReader.Error, "Read Failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    Debug.WriteLine(" #Read point failed : " + lasReader.Error);
+                    MessageBox.Show(lasReader.Error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     break;
                 }
-               
-
-                result = lazWriter.WritePoint(p);
+                //Debug.WriteLine(string.Format(" x={0},y={1},z={2}", p.GeoX, p.GeoY, p.GeoZ));
+                result = lasWriter.WritePoint(p);
                 if (!result)
                 {
-                    MessageBox.Show(lazWriter.Error, "Write failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    Debug.WriteLine("  #Write point failed : " + lazWriter.Error);
+                    MessageBox.Show(lasWriter.Error, "Write failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    //Debug.WriteLine("  #Write point failed : " + lasWriter.Error);
                     break;
                 }
             }
 
-            lazWriter.CloseWriter();
+
+            lasWriter.CloseWriter();
 
             if (!result)
             {
@@ -379,7 +401,7 @@ namespace LasLib.net.Test
             }
             else
                 MessageBox.Show("Save the data succesfully!", "Info.", MessageBoxButtons.OK, MessageBoxIcon.Information);
-        
+
         }
 
         private void tsbOpenCSV_Click(object sender, EventArgs e)
@@ -392,7 +414,7 @@ namespace LasLib.net.Test
                     dialog.Multiselect = false;
                     dialog.InitialDirectory = ".";
                     dialog.Title = "Select file (only in csv format)";
-                    
+
                     this.tslMain.Text = " Reading csv ...";
                     this.Cursor = Cursors.WaitCursor;
 
@@ -406,8 +428,8 @@ namespace LasLib.net.Test
                     this.Cursor = Cursors.Default;
                 }
                 catch (Exception ex)
-                { 
-                    
+                {
+
                 }
             }
         }
@@ -459,6 +481,13 @@ namespace LasLib.net.Test
             // Todo, Set header from the dgvinfo. 
             LasWriter lasWriter = new LasWriter(newHeader);
             if (!lasWriter.OpenWriter(lasFile))
+            {
+                MessageBox.Show(lasWriter.Error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                lasWriter.CloseWriter();
+                return;
+            }
+
+            if (!lasWriter.CreatePointWriter())
             {
                 MessageBox.Show(lasWriter.Error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 lasWriter.CloseWriter();

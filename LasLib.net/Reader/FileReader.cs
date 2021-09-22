@@ -11,6 +11,7 @@ using LasLibNet.Abstract;
 using LasLibNet.Model;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -106,7 +107,11 @@ namespace LasLibNet.Reader
 
             return open_reader_stream();
         }
-
+        /// <summary>
+        /// Open in stream for a laz file
+        /// </summary>
+        /// <param name="file_name"></param>
+        /// <returns></returns>
         public virtual bool OpenReader(string file_name)
         {
             if (file_name == null || file_name.Length == 0)
@@ -130,6 +135,10 @@ namespace LasLibNet.Reader
             return open_reader_stream();
         }
 
+        /// <summary>
+        /// open stream.
+        /// </summary>
+        /// <returns></returns>
         protected bool open_reader_stream()
         {
             try
@@ -257,6 +266,10 @@ namespace LasLibNet.Reader
                     return false;
                 }
                 header.point_data_format = buffer[0];
+
+#if DEBUG
+                Debug.WriteLine(" # point_data_format = "+header.point_data_format.ToString());
+#endif
 
                 if (streamin.Read(buffer, 0, 2) != 2)
                 {
@@ -627,9 +640,13 @@ namespace LasLibNet.Reader
         {
             try
             {
+                //Remember the current position.
+                long cur_position = this.streamin.Position;
                 this.ext_header = new byte[this.header.offset_to_point_data];
                 streamin.Position = 0;
                 streamin.Read(this.ext_header, 0, (int)this.header.offset_to_point_data);
+                //Reset the position to last position
+                streamin.Position = cur_position;
                 return this.ext_header;
             }
             catch
