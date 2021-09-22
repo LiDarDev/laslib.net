@@ -46,6 +46,10 @@ namespace LasLibNet.Abstract
 
         LasPoint ReadPoint();
 
+        /// <summary>
+        /// All header info include the public block and extended block.
+        /// </summary>
+        /// <returns></returns>
         byte[] GetExtendHeader();
 
         #endregion

@@ -70,6 +70,10 @@ namespace LasLibNet.Utils
             Type t = value.GetType();
             if (t.Equals(typeof(byte)))
                 Debug.WriteLine(modelName+".{0} = {1}", name, ((byte)value).ToString("x2"));
+            else if (t.Equals(typeof(byte[]))
+                && (name == "system_identifier" || name == "generating_software" 
+                 || name == "project_ID_GUID_data_4"))
+                Debug.WriteLine( Encoding.UTF8.GetString((byte[])value));
             else if (t.Equals(typeof(byte[])))
                 Debug.WriteLine(modelName+".{0} = {1}", name, BitConverter.ToString((byte[])value));
             else if (t.Equals(typeof(UInt32[])))
@@ -109,7 +113,8 @@ namespace LasLibNet.Utils
             if (t.Equals(typeof(byte)))
                 return ((byte)value).ToString("x2");
             else if (t.Equals(typeof(byte[])) 
-                && (name== "system_identifier" || name== "generating_software"))
+                && (name== "system_identifier" || name== "generating_software" 
+                 || name== "project_ID_GUID_data_4"))
                 return Encoding.UTF8.GetString((byte[])value);
             else if (t.Equals(typeof(byte[])))
                 return BitConverter.ToString((byte[])value);
