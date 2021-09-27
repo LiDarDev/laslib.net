@@ -98,5 +98,76 @@
     LasHeader lasHeader;  
     ... ... // Todo like reading the las file.
    
+### 6. How to convert the laz file into a las file?
+           bool result = true;
+            if (this.saveFileDialog.ShowDialog() != DialogResult.OK)
+            {
+                MessageBox.Show("You HAVE TO choose a las file!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                return;
+            }
+
+            string FileName = this.saveFileDialog.FileName;
+
+            IFileWriter lasWriter = null;
+            if (FileName.ToLower().EndsWith(".las"))
+                lasWriter = new LasWriter(this.lasHeader);
+            else if (FileName.ToLower().EndsWith(".laz"))
+                lasWriter = new LazWriter(this.lasHeader);
+            else
+            {
+                MessageBox.Show("Please choose a file name with LAS or LAZ extend name"
+                    , "Error"
+                    , MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            if (!lasWriter.OpenWriter(FileName))
+            {
+                MessageBox.Show("Open writer failed : "+lasWriter.Error
+                    , "Error"
+                    , MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            result = lasWriter.CreatePointWriter();
+
+            if (!result)
+            {
+                MessageBox.Show(lasWriter.Error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                lasWriter.CloseWriter();
+                return;
+            }
+          
+            if (lasWriter.WriteHeader(lasReader.Header) == false)
+            {
+                MessageBox.Show(lasWriter.Error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                lasWriter.CloseWriter();
+                return;
+            }
+
+            lasReader.SeekPoint(0);
+
+            // Loop through number of points indicated
+            for (int pointIndex = 0; pointIndex < this.lasHeader.number_of_point_records; pointIndex++)
+            {
+                // Read the point
+                LasPoint p = lasReader.ReadPoint();
+                if (p == null)
+                {
+                    MessageBox.Show(lasReader.Error, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    break;
+                }
+                //Debug.WriteLine(string.Format(" x={0},y={1},z={2}", p.GeoX, p.GeoY, p.GeoZ));
+                result = lasWriter.WritePoint(p);
+                if (!result)
+                {
+                    MessageBox.Show(lasWriter.Error, "Write failed", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    //Debug.WriteLine("  #Write point failed : " + lasWriter.Error);
+                    break;
+                }
+            }
+
+            lasWriter.CloseWriter();
+
 ## Example
    ![image](https://github.com/LiDarDev/laslib.net/blob/main/Images/GUI.jpg)
