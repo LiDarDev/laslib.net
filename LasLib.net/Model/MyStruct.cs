@@ -58,7 +58,7 @@ namespace LasLibNet.Model
         public byte flags;
         public byte classification;
         public sbyte scan_angle_rank;
-        public byte user_data;      
+        public byte user_data;
         public ushort point_source_ID;
     }
 
@@ -118,9 +118,9 @@ namespace LasLibNet.Model
         public sbyte scan_angle_rank;
         public byte user_data;
         public ushort point_source_ID;
-        public ushort blue;
         public ushort red;
         public ushort green;
+        public ushort blue;
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -136,9 +136,9 @@ namespace LasLibNet.Model
         public byte user_data;
         public ushort point_source_ID;
         public double gps_time;
-        public ushort blue;
         public ushort red;
         public ushort green;
+        public ushort blue;
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -182,9 +182,9 @@ namespace LasLibNet.Model
         public sbyte scan_angle_rank;
         public byte user_data;
         public ushort point_source_ID;
-        public ushort blue;
         public ushort red;
         public ushort green;
+        public ushort blue;
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -200,8 +200,8 @@ namespace LasLibNet.Model
         public byte user_data;
         public ushort point_source_ID;
         public double gps_time;
-        public ushort blue;
         public ushort red;
         public ushort green;
+        public ushort blue;
     }
 }
