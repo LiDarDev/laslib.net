@@ -112,31 +112,13 @@ namespace LasLib.net.Test
         private void toolStripButton3_Click_1(object sender, EventArgs e)
         {
             this.tslMain.Text = " Reading data...";
+            this.tsProgressbar.Value = 0;
             this.statusStrip1.Refresh();
+
+            this.timer1.Enabled = true;
+            this.timer1.Start();
+
             this.Cursor = Cursors.WaitCursor;
-
-            #region Create DataTable
-            DataTable dt = new DataTable();
-            DataColumn colId = new DataColumn("id", typeof(string));
-            dt.Columns.Add(colId);
-            DataColumn colX = new DataColumn("X", typeof(string));
-            dt.Columns.Add(colX);
-            DataColumn colY = new DataColumn("Y", typeof(string));
-            dt.Columns.Add(colY);
-            DataColumn colZ = new DataColumn("Z", typeof(string));
-            dt.Columns.Add(colZ);
-            DataColumn colI = new DataColumn("I", typeof(string));
-            dt.Columns.Add(colI);
-            DataColumn colR = new DataColumn("R", typeof(string));
-            dt.Columns.Add(colR);
-            DataColumn colG = new DataColumn("G", typeof(string));
-            dt.Columns.Add(colG);
-            DataColumn colB = new DataColumn("B", typeof(string));
-            dt.Columns.Add(colB);
-            #endregion
-
-
-            #region Add Data Row
 
             lasReader.SeekPoint(0);
 
@@ -146,6 +128,61 @@ namespace LasLib.net.Test
                 if (dt1 != null)
                     dt1.Clear();
             }
+
+            Task.Run(() => this.ReadData());
+
+        }
+
+        #region Define a delegate to display data
+        delegate void DisplayDataDelegate(DataTable dt);
+
+        private void DisplayData(DataTable dt)
+        {
+            if (this.dgvData.InvokeRequired == false)                      //如果调用该函数的线程和控件lstMain位于同一个线程内
+            {
+                this.dgvData.DataSource = dt;
+                this.Cursor = Cursors.Default;
+                this.tslMain.Text = "Data read successfully!";
+                this.tsbExportCSV.Enabled = true;
+
+                this.timer1.Stop();
+                this.timer1.Enabled = false;
+                
+                this.tsProgressbar.Value = tsProgressbar.Maximum;
+            }
+            else                                                        //如果调用该函数的线程和控件lstMain不在同一个线程
+            {
+                //通过使用Invoke的方法，让子线程告诉窗体线程来完成相应的控件操作
+                DisplayDataDelegate dlg = new DisplayDataDelegate(DisplayData);
+                //使用控件lstMain的Invoke方法执行DMSGD代理(其类型是DispMSGDelegate)
+                this.dgvData.Invoke(dlg, dt);
+            }
+
+        }
+        #endregion
+
+        private async Task ReadData()
+        {
+            DataTable dt = new DataTable();
+            DataColumn colId = new DataColumn("id", typeof(string));
+            dt.Columns.Add(colId);
+            DataColumn colX = new DataColumn("X", typeof(string));
+            dt.Columns.Add(colX);
+            DataColumn colY = new DataColumn("Y", typeof(string));
+            dt.Columns.Add(colY);
+            DataColumn colZ = new DataColumn("Z", typeof(string));
+            dt.Columns.Add(colZ);
+            DataColumn colI = new DataColumn("Intensity", typeof(string));
+            dt.Columns.Add(colI);
+            DataColumn colRN = new DataColumn("ReturnNumber", typeof(string));
+            dt.Columns.Add(colRN);
+            DataColumn colR = new DataColumn("R", typeof(string));
+            dt.Columns.Add(colR);
+            DataColumn colG = new DataColumn("G", typeof(string));
+            dt.Columns.Add(colG);
+            DataColumn colB = new DataColumn("B", typeof(string));
+            dt.Columns.Add(colB);
+
             // Loop through number of points indicated
             for (int pointIndex = 0; pointIndex < this.lasHeader.number_of_point_records; pointIndex++)
             {
@@ -163,19 +200,14 @@ namespace LasLib.net.Test
                 row[colY] = p.GeoY.ToString("f2");
                 row[colZ] = p.GeoZ.ToString("f2");
                 row[colI] = p.intensity.ToString();
+                row[colRN] = p.return_number;
                 row[colR] = p.red.ToString();
                 row[colG] = p.green.ToString();
                 row[colB] = p.blue.ToString();
                 dt.Rows.Add(row);
-
             }
-            #endregion
 
-            this.dgvData.DataSource = dt;
-            this.Cursor = Cursors.Default;
-            this.tslMain.Text = "Data read successfully!";
-            this.tsbExportCSV.Enabled = true;
-
+            DisplayData(dt);
         }
 
         /// <summary>
@@ -337,7 +369,7 @@ namespace LasLib.net.Test
 
             if (!lasWriter.OpenWriter(FileName))
             {
-                MessageBox.Show("Open writer failed : "+lasWriter.Error
+                MessageBox.Show("Open writer failed : " + lasWriter.Error
                     , "Error"
                     , MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
@@ -521,6 +553,24 @@ namespace LasLib.net.Test
             lasWriter.CloseWriter();
             MessageBox.Show("Create a las file successfully.");
 
+        }
+
+        private void tsbAbout_Click(object sender, EventArgs e)
+        {
+            FormAbout frm = new FormAbout();
+            frm.ShowDialog();
+        }
+
+        /// <summary>
+        /// Set the progressbar value.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void timer1_Tick(object sender, EventArgs e)
+        {
+            this.tsProgressbar.Value++;
+            if (tsProgressbar.Value >= tsProgressbar.Maximum) this.tsProgressbar.Value = 0;
+            this.statusStrip1.Refresh();
         }
     }
 }
