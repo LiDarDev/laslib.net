@@ -93,7 +93,7 @@ namespace LasLibNet.Utils
                 || t.Equals(typeof(ushort)) || t.Equals(typeof(ulong)))
                 Debug.WriteLine(modelName+".{0} = {1}", name, value);
             else if (t.Equals(typeof(double)) || t.Equals(typeof(Single)))
-                Debug.WriteLine(modelName+".{0} = {1}", name, ((double)value).ToString("f6"));
+                Debug.WriteLine(modelName+".{0} = {1}", name, ((double)value).ToString("f7"));
             else if (t.Equals(typeof(List<LasVLR>)))
                 Debug.WriteLine(modelName+".{0} = {1}", name, list_string((List<LasVLR>)value));
             else if (t.Equals(typeof(string)))
@@ -137,7 +137,7 @@ namespace LasLibNet.Utils
                 || t.Equals(typeof(ushort)) || t.Equals(typeof(ulong)))
                 return value.ToString();
             else if (t.Equals(typeof(double)) || t.Equals(typeof(Single)))
-                return ((double)value).ToString("f6");
+                return ((double)value).ToString("f7");
             else if (t.Equals(typeof(List<LasVLR>)))
                 return list_string((List<LasVLR>)value);
             else 
