@@ -59,7 +59,6 @@
     <Compile Include="Model\LazFile.cs" />
     <Compile Include="Model\LazItem.cs" />
     <Compile Include="Model\LasPoint.cs" />
-    <Compile Include="Model\Point3D.cs" />
     <Compile Include="Model\StreamingMedian5.cs" />
     <Compile Include="Model\U32I32F32.cs" />
     <Compile Include="Model\U64I64F64.cs" />
@@ -73,7 +72,6 @@
     <Compile Include="Reader\LazItemReader_RGB12_v2.cs" />
     <Compile Include="Reader\LazItemReader_WAVEPACKET13_v1.cs" />
     <Compile Include="Reader\FileReader.cs" />
-    <Compile Include="Utils\Projection.cs" />
     <Compile Include="Writer\FileWriter.cs" />
     <Compile Include="Writer\LazItemWriter_BYTE_v2.cs" />
     <Compile Include="Writer\LazItemWriter_GPSTIME11_v2.cs" />
