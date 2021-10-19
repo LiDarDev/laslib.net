@@ -505,7 +505,7 @@ namespace LasLibNet.Reader
                 if (!leaveStreamInOpen) streamin.Close();
                 streamin = null;
 
-                Clean();
+                //Clean();
             }
             catch
             {
