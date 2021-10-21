@@ -19,8 +19,19 @@ namespace LasLibNet.Model
     /// <summary>
     /// Las Point
     /// </summary>
-    public class LasPoint : LasPointBase
+    public class LasPoint : LasPointBase,ICloneable
     {
+        public LasPoint() { }
+
+        /// <summary>
+        /// Construct function
+        /// </summary>
+        /// <param name="header">Las File header</param>
+        public LasPoint(LasHeader header)
+        {
+            this.lasHeader = header;
+        }
+
         #region V1.0_Format0
         protected byte _file_marker;
         public byte file_marker { get => _file_marker; set => _file_marker = value; }
@@ -766,5 +777,15 @@ namespace LasLibNet.Model
         #endregion
 
         #endregion
+
+        /// <summary>
+        /// Clone this header.
+        /// </summary>
+        /// <returns></returns>
+        public object Clone()
+        {
+            var pt = (LasPoint)MemberwiseClone();
+            return pt;
+        }
     }
 }

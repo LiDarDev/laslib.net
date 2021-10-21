@@ -21,6 +21,11 @@ namespace LasLibNet.Model
     /// </summary>
     public class LasPointBase
     {
+        protected LasHeader lasHeader=LasHeader.Instance;
+        /// <summary>
+        /// 头部信息
+        /// </summary>
+        public LasHeader Header { get => lasHeader; set => lasHeader = value; }
         /// <summary>
         /// The coordinate of las file.
         /// </summary>
@@ -45,12 +50,12 @@ namespace LasLibNet.Model
         public double GeoX
         {
             get
-            {
-                return LasHeader.Instance.x_scale_factor * this.x + LasHeader.Instance.x_offset;
+            {               
+                    return lasHeader.x_scale_factor * this.x + lasHeader.x_offset;
             }
             set
-            {
-                this.x = MyDefs.I32_QUANTIZE((value - LasHeader.Instance.x_offset) / LasHeader.Instance.x_scale_factor);
+            {               
+                    this.x = MyDefs.I32_QUANTIZE((value - lasHeader.x_offset) / lasHeader.x_scale_factor);
             }
         }
 
@@ -61,11 +66,13 @@ namespace LasLibNet.Model
         {
             get
             {
-                return LasHeader.Instance.y_scale_factor * this.y + LasHeader.Instance.y_offset;
+                
+                    return lasHeader.y_scale_factor * this.y + lasHeader.y_offset;
             }
             set
             {
-                this.y = MyDefs.I32_QUANTIZE((value - LasHeader.Instance.y_offset) / LasHeader.Instance.y_scale_factor);
+               
+                    this.y = MyDefs.I32_QUANTIZE((value - lasHeader.y_offset) / lasHeader.y_scale_factor);
             }
         }
 
@@ -76,12 +83,12 @@ namespace LasLibNet.Model
         public double GeoZ
         {
             get
-            {
-                return LasHeader.Instance.z_scale_factor * this.z + LasHeader.Instance.z_offset;
+            {              
+                    return lasHeader.z_scale_factor * this.z + lasHeader.z_offset;  
             }
             set
             {
-                this.z = MyDefs.I32_QUANTIZE((value - LasHeader.Instance.z_offset) / LasHeader.Instance.z_scale_factor);
+                this.z = MyDefs.I32_QUANTIZE((value - lasHeader.z_offset) / lasHeader.z_scale_factor);
             }
         }
         #endregion

@@ -18,7 +18,7 @@ namespace LasLibNet
     /// <summary>
     /// Las file header
     /// </summary>
-    public class LasHeader
+    public class LasHeader: ICloneable
     {
         #region private arrtribues
         private ushort _file_source_ID;
@@ -185,5 +185,16 @@ namespace LasLibNet
             this.vlrs = null;
             this.user_data_after_header_size = 0;
         }
+
+        /// <summary>
+        /// Clone this header.
+        /// </summary>
+        /// <returns></returns>
+        public object Clone()
+        {
+            var header = (LasHeader)MemberwiseClone();
+            return header;
+        }
+
     }
 }

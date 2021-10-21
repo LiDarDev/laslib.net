@@ -38,7 +38,7 @@ namespace LasLibNet.Reader
 
             try
             {
-                point = new LasPoint();
+                point = new LasPoint(LasHeader.Instance);
 
                 fixed (byte* pBuffer = buffer)
                 {

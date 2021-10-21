@@ -27,7 +27,7 @@ namespace LasLibNet.Reader
                 return null;
             }
 
-            point = new LasPoint();
+            point = new LasPoint(LasHeader.Instance);
 
             fixed (byte* pBuffer = buffer)
             {

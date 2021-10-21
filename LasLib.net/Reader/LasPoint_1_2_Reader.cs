@@ -177,7 +177,7 @@ namespace LasLibNet.Reader
             //            Debug.WriteLine(" Buffer: " + BitConverter.ToString(buffer));
             //#endif 
 
-            point = new LasPoint();
+            point = new LasPoint(LasHeader.Instance);
 
             fixed (byte* pBuffer = buffer)
             {

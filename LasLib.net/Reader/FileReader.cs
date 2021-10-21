@@ -25,7 +25,7 @@ namespace LasLibNet.Reader
     public class FileReader
     {
         #region Fields and Properties
-        protected LasHeader header = LasHeader.Instance;
+        protected LasHeader header =  LasHeader.Instance;
         /// <summary>
         /// Las File Header Infor.
         /// </summary>
@@ -47,7 +47,7 @@ namespace LasLibNet.Reader
         /// </summary>
         public long PointsNumber { get => this.npoints; }
 
-        protected LasPoint point = new LasPoint();
+        protected LasPoint point = new LasPoint(LasHeader.Instance);
         /// <summary>
         /// Current point
         /// </summary>
@@ -468,7 +468,249 @@ namespace LasLibNet.Reader
 
                 }
                 #endregion
+
+                #region read variable length records into the header
+                uint vlrs_size = 0;
                
+                if (header.number_of_variable_length_records != 0)
+                {
+                    header.vlrs = new List<LasVLR>();
+
+                    for (int i = 0; i < header.number_of_variable_length_records; i++)
+                    {
+                        header.vlrs.Add(new LasVLR());
+
+                        // make sure there are enough bytes left to read a variable length record before the point block starts
+                        if (((int)header.offset_to_point_data - vlrs_size - header.header_size) < 54)
+                        {
+                            warning = string.Format("only {0} bytes until point block after reading {1} of {2} vlrs. skipping remaining vlrs ...", (int)header.offset_to_point_data - vlrs_size - header.header_size, i, header.number_of_variable_length_records);
+                            header.number_of_variable_length_records = (uint)i;
+                            break;
+                        }
+
+                        // read variable length records variable after variable (to avoid alignment issues)
+                        if (streamin.Read(buffer, 0, 2) != 2)
+                        {
+                            error = string.Format("reading header.vlrs[{0}].reserved", i);
+                            return false;
+                        }
+                        header.vlrs[i].reserved = BitConverter.ToUInt16(buffer, 0);
+
+                        if (streamin.Read(header.vlrs[i].user_id, 0, 16) != 16)
+                        {
+                            error = string.Format("reading header.vlrs[{0}].user_id", i);
+                            return false;
+                        }
+
+                        if (streamin.Read(buffer, 0, 2) != 2)
+                        {
+                            error = string.Format("reading header.vlrs[{0}].record_id", i);
+                            return false;
+                        }
+                        header.vlrs[i].record_id = BitConverter.ToUInt16(buffer, 0);
+
+                        if (streamin.Read(buffer, 0, 2) != 2)
+                        {
+                            error = string.Format("reading header.vlrs[{0}].record_length_after_header", i);
+                            return false;
+                        }
+                        header.vlrs[i].record_length_after_header = BitConverter.ToUInt16(buffer, 0);
+
+                        if (streamin.Read(header.vlrs[i].description, 0, 32) != 32)
+                        {
+                            error = string.Format("reading header.vlrs[{0}].description", i);
+                            return false;
+                        }
+
+                        // keep track on the number of bytes we have read so far
+                        vlrs_size += 54;
+
+                        // check variable length record contents
+                        if (header.vlrs[i].reserved != 0xAABB)
+                        {
+                            warning = string.Format("wrong header.vlrs[{0}].reserved: {1} != 0xAABB", i, header.vlrs[i].reserved);
+                        }
+
+                        // make sure there are enough bytes left to read the data of the variable length record before the point block starts
+                        if (((int)header.offset_to_point_data - vlrs_size - header.header_size) < header.vlrs[i].record_length_after_header)
+                        {
+                            warning = string.Format("only {0} bytes until point block when trying to read {1} bytes into header.vlrs[{2}].data", (int)header.offset_to_point_data - vlrs_size - header.header_size, header.vlrs[i].record_length_after_header, i);
+                            header.vlrs[i].record_length_after_header = (ushort)(header.offset_to_point_data - vlrs_size - header.header_size);
+                        }
+
+                        string userid = "";
+                        for (int a = 0; a < header.vlrs[i].user_id.Length; a++)
+                        {
+                            if (header.vlrs[i].user_id[a] == 0) break;
+                            userid += (char)header.vlrs[i].user_id[a];
+                        }
+
+                        // load data following the header of the variable length record
+                        if (header.vlrs[i].record_length_after_header != 0)
+                        {
+                            if (userid == "laszip encoded")
+                            {
+                                LazFile laszip = new LazFile();
+
+                                // read the LASzip VLR payload
+
+                                //     U16  compressor                2 bytes 
+                                //     U32  coder                     2 bytes 
+                                //     U8   version_major             1 byte 
+                                //     U8   version_minor             1 byte
+                                //     U16  version_revision          2 bytes
+                                //     U32  options                   4 bytes 
+                                //     I32  chunk_size                4 bytes
+                                //     I64  number_of_special_evlrs   8 bytes
+                                //     I64  offset_to_special_evlrs   8 bytes
+                                //     U16  num_items                 2 bytes
+                                //        U16 type                2 bytes * num_items
+                                //        U16 size                2 bytes * num_items
+                                //        U16 version             2 bytes * num_items
+                                // which totals 34+6*num_items
+
+                                if (streamin.Read(buffer, 0, 2) != 2)
+                                {
+                                    error = "reading compressor";
+                                    return false;
+                                }
+                                laszip.compressor = BitConverter.ToUInt16(buffer, 0);
+
+                                if (streamin.Read(buffer, 0, 2) != 2)
+                                {
+                                    error = "reading coder";
+                                    return false;
+                                }
+                                laszip.coder = BitConverter.ToUInt16(buffer, 0);
+
+                                if (streamin.Read(buffer, 0, 1) != 1)
+                                {
+                                    error = "reading version_major";
+                                    return false;
+                                }
+                                laszip.version_major = buffer[0];
+
+                                if (streamin.Read(buffer, 0, 1) != 1)
+                                {
+                                    error = "reading version_minor";
+                                    return false;
+                                }
+                                laszip.version_minor = buffer[0];
+
+                                if (streamin.Read(buffer, 0, 2) != 2)
+                                {
+                                    error = "reading version_revision";
+                                    return false;
+                                }
+                                laszip.version_revision = BitConverter.ToUInt16(buffer, 0);
+
+                                if (streamin.Read(buffer, 0, 4) != 4)
+                                {
+                                    error = "reading options";
+                                    return false;
+                                }
+                                laszip.options = BitConverter.ToUInt32(buffer, 0);
+
+                                if (streamin.Read(buffer, 0, 4) != 4)
+                                {
+                                    error = "reading chunk_size";
+                                    return false;
+                                }
+                                laszip.chunk_size = BitConverter.ToUInt32(buffer, 0);
+
+                                if (streamin.Read(buffer, 0, 8) != 8)
+                                {
+                                    error = "reading number_of_special_evlrs";
+                                    return false;
+                                }
+                                laszip.number_of_special_evlrs = BitConverter.ToInt64(buffer, 0);
+
+                                if (streamin.Read(buffer, 0, 8) != 8)
+                                {
+                                    error = "reading offset_to_special_evlrs";
+                                    return false;
+                                }
+                                laszip.offset_to_special_evlrs = BitConverter.ToInt64(buffer, 0);
+
+                                if (streamin.Read(buffer, 0, 2) != 2)
+                                {
+                                    error = "reading num_items";
+                                    return false;
+                                }
+                                laszip.num_items = BitConverter.ToUInt16(buffer, 0);
+
+                                laszip.items = new LazItem[laszip.num_items];
+                                for (int j = 0; j < laszip.num_items; j++)
+                                {
+                                    laszip.items[j] = new LazItem();
+
+                                    if (streamin.Read(buffer, 0, 2) != 2)
+                                    {
+                                        error = string.Format("reading type of item {0}", j);
+                                        return false;
+                                    }
+                                    laszip.items[j].type = (LazItem.Type)BitConverter.ToUInt16(buffer, 0);
+
+                                    if (streamin.Read(buffer, 0, 2) != 2)
+                                    {
+                                        error = string.Format("reading size of item {0}", j);
+                                        return false;
+                                    }
+                                    laszip.items[j].size = BitConverter.ToUInt16(buffer, 0);
+
+                                    if (streamin.Read(buffer, 0, 2) != 2)
+                                    {
+                                        error = string.Format("reading version of item {0}", j);
+                                        return false;
+                                    }
+                                    laszip.items[j].version = BitConverter.ToUInt16(buffer, 0);
+                                }
+                            }
+                            else
+                            {
+                                header.vlrs[i].data = new byte[header.vlrs[i].record_length_after_header];
+                                if (streamin.Read(header.vlrs[i].data, 0, header.vlrs[i].record_length_after_header) != header.vlrs[i].record_length_after_header)
+                                {
+                                    error = string.Format("reading {0} bytes of data into header.vlrs[{1}].data", header.vlrs[i].record_length_after_header, i);
+                                    return false;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            header.vlrs[i].data = null;
+                        }
+
+                        // keep track on the number of bytes we have read so far
+                        vlrs_size += header.vlrs[i].record_length_after_header;
+
+                        // special handling for LASzip VLR
+                        if (userid == "laszip encoded")
+                        {
+                            // we take our the VLR for LASzip away
+                            header.offset_to_point_data -= (uint)(54 + header.vlrs[i].record_length_after_header);
+                            vlrs_size -= (uint)(54 + header.vlrs[i].record_length_after_header);
+                            header.vlrs.RemoveAt(i);
+                            i--;
+                            header.number_of_variable_length_records--;
+                        }
+                    }
+                }
+                #endregion
+
+                // load any number of user-defined bytes that might have been added after the header
+                header.user_data_after_header_size = header.offset_to_point_data - vlrs_size - header.header_size;
+                if (header.user_data_after_header_size != 0)
+                {
+                    header.user_data_after_header = new byte[header.user_data_after_header_size];
+
+                    if (streamin.Read(header.user_data_after_header, 0, (int)header.user_data_after_header_size) != header.user_data_after_header_size)
+                    {
+                        error = string.Format("reading {0} bytes of data into header.user_data_after_header", header.user_data_after_header_size);
+                        return false;
+                    }
+                }
+
 
                 // If read laz file, then continue read extra header info.
                 //if (this.GetType().IsAssignableFrom(typeof(LazReader)))
